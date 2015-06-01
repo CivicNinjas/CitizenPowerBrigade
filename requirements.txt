@@ -1,4 +1,8 @@
 Django==1.8.2
 argparse==1.2.1
+flake8==2.4.1
+mccabe==0.3
+pep8==1.5.7
 psycopg2==2.6
+pyflakes==0.8.1
 wsgiref==0.1.2
