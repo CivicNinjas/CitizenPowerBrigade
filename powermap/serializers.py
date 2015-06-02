@@ -1,22 +1,13 @@
 from powermap.models import PowerCar
 from django.contrib.auth.models import User
 from rest_framework import serializers
+from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
 
-class PowerCarSerializer(serializers.HyperlinkedModelSerializer):
+class PowerCarSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = PowerCar
-        fields = (
-            'name',
-            'vehicle_description',
-            'license_plate',
-            'eta',
-            'current_location_until',
-            'current_location',
-            'target_location',
-            'next_location',
-            'owner'
-        )
+        geo_field = 'current_location'
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):

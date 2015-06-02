@@ -1,7 +1,7 @@
 from powermap.models import PowerCar
 from django.contrib.auth.models import User
 from rest_framework import viewsets
-from pttp.powermap.serializers import PowerCarSerializer, UserSerializer
+from serializers import PowerCarSerializer, UserSerializer
 from django.shortcuts import render
 
 
