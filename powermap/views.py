@@ -1,5 +1,7 @@
 from powermap.models import PowerCar
 from django.contrib.auth.models import User
+from django.contrib.sessions.models import Session
+from django.utils import timezone
 from rest_framework import viewsets
 from serializers import PowerCarSerializer, UserSerializer
 from django.shortcuts import render
@@ -9,7 +11,15 @@ class PowerCarViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows cars to be viewed or edited.
     """
-    queryset = PowerCar.objects.all()
+    sessions = Session.objects.filter(expire_date__gte=timezone.now())
+    uid_list = []
+
+    # Build list of user IDs from session query.
+    for session in sessions:
+        data = session.get_decoded()
+        uid_list.append(data.get('_auth_user_id', None))
+    users = User.objects.filter(id__in=uid_list)
+    queryset = PowerCar.objects.filter(owner__in=users)
     serializer_class = PowerCarSerializer
 
 
