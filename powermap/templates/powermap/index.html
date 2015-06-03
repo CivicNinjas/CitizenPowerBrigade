@@ -1,17 +1,16 @@
+{% extends "powermap/base.html" %}
 {% load staticfiles %}
-<head>
+{% block header %}
   <script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.9/mapbox.js'></script>
   <link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.9/mapbox.css' rel='stylesheet' />
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
   <style>
     body { margin:0; padding:0; }
     #map { position:absolute; top:0; bottom:0; width:100%; }
   </style>
-</head>
+{% endblock %}
+{% block content %}
 <body>
   <div id='map'></div>
   <script src="{% static 'powermap/index.js' %}"></script>
 </body>
+{% endblock %}
