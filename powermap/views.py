@@ -23,3 +23,14 @@ class UserViewSet(viewsets.ModelViewSet):
 
 def index(request):
     return render(request, 'powermap/index.html', {})
+
+
+def popup(request, **kwargs):
+    car_id = kwargs['car_id']
+    car = PowerCar.objects.get(id=car_id)
+    context = {
+        "name": car.name,
+        "vehicle_description": car.vehicle_description,
+        "license_plate": car.license_plate, "owner": car.owner
+    }
+    return render(request, 'powermap/popup.html', context)
