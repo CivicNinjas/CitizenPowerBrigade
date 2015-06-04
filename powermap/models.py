@@ -14,3 +14,13 @@ class PowerCar(models.Model):
     next_location = models.PointField()
     owner = models.ForeignKey(User, null=True)
     objects = models.GeoManager()
+
+
+class HelpNote(models.Model):
+    # A note posted by a user that needs help.
+    address = models.CharField(max_length=255)
+    message = models.CharField(max_length=512)
+    creator = models.CharField(max_length=63)
+    road_access = models.BooleanField()
+    location = models.PointField()
+    objects = models.GeoManager()
