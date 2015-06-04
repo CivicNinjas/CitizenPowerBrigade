@@ -1,24 +1,12 @@
+{% load staticfiles %}
 <head>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="{% static 'powermap/base.css' %}">
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
   {% block header %}
   {% endblock %}
-  <style>
-    .navbar-collapse {
-        position: absolute;
-        z-index: 1000;
-        margin: 2px 0px 0px;
-        font-size: 14px;
-        background-color: #FFF;
-        border: 1px solid rgba(0, 0, 0, 0.15);
-        border-radius: 4px;
-        text-align: right;
-        box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.176);
-        width: 100%;
-    }
-  </style>
 </head>
 
 
