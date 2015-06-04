@@ -1,10 +1,14 @@
 from powermap.models import PowerCar, HelpNote
+from powermap.forms import HelpNoteModelForm
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.utils import timezone
 from rest_framework import viewsets
 from serializers import PowerCarSerializer, UserSerializer, HelpNoteSerializer
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 
 class PowerCarViewSet(viewsets.ModelViewSet):
@@ -39,8 +43,23 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 
+@api_view(['POST'])
+def create_note(request):
+    """
+    List all snippets, or create a new snippet.
+    """
+
+    if request.method == 'POST':
+        serializer = HelpNoteSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return redirect('index')
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 def index(request):
-    return render(request, 'powermap/index.html', {})
+    form = HelpNoteModelForm()
+    return render(request, 'powermap/index.html', {"form": form})
 
 
 def popup(request, **kwargs):
@@ -52,3 +71,8 @@ def popup(request, **kwargs):
         "license_plate": car.license_plate, "owner": car.owner
     }
     return render(request, 'powermap/popup.html', context)
+
+
+def note_form(request, **kwargs):
+    form = HelpNoteModelForm()
+    return render(request, 'powermap/note_form.html', {"form": form})
