@@ -21,8 +21,9 @@ myLayer.on('click', function(e){
 });
 
 var show = (function(position) {
-    console.log("Latitude: " + position.coords.latitude +
-    "Longitude: " + position.coords.longitude);
+    console.log("Latitude: " + position.coords.latitude + "Longitude: " + position.coords.longitude);
+    point_string = "POINT(" + position.coords.latitude + " " + position.coords.longitude +")";
+    $("#id_location").val(point_string);
 });
 
 var aye = (function() {
