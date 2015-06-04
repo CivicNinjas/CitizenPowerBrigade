@@ -1,9 +1,9 @@
-from powermap.models import PowerCar
+from powermap.models import PowerCar, HelpNote
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.utils import timezone
 from rest_framework import viewsets
-from serializers import PowerCarSerializer, UserSerializer
+from serializers import PowerCarSerializer, UserSerializer, HelpNoteSerializer
 from django.shortcuts import render
 
 
@@ -21,6 +21,14 @@ class PowerCarViewSet(viewsets.ModelViewSet):
     users = User.objects.filter(id__in=uid_list)
     queryset = PowerCar.objects.filter(owner__in=users)
     serializer_class = PowerCarSerializer
+
+
+class HelpNoteViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows help notes to be viewed or edited.
+    """
+    queryset = HelpNote.objects.all()
+    serializer_class = HelpNoteSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
