@@ -20,4 +20,20 @@ myLayer.on('click', function(e){
     });
 });
 
-getData()
+var show = (function(position) {
+    console.log("Latitude: " + position.coords.latitude +
+    "Longitude: " + position.coords.longitude);
+});
+
+var aye = (function() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(show);
+    } else {
+        console.log("Geolocation is not supported by this browser.");
+    }
+})
+
+
+aye();
+
+getData();
