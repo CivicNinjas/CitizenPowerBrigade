@@ -21,6 +21,5 @@ class HelpNote(models.Model):
     address = models.CharField(max_length=255)
     message = models.CharField(max_length=512)
     creator = models.CharField(max_length=63)
-    road_access = models.BooleanField()
     location = models.PointField()
     objects = models.GeoManager()
