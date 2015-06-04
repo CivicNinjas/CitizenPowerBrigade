@@ -7,6 +7,7 @@ from django.contrib import admin
 router = routers.DefaultRouter()
 router.register(r'powercars', views.PowerCarViewSet)
 router.register(r'users', views.UserViewSet)
+router.register(r'helpnotes', views.HelpNoteViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
