@@ -33,6 +33,13 @@ myLayer.on('click', function(e){
     });
 });
 
+noteLayer.on('click', function(e){
+    $.get("http://127.0.0.1:8000/pttp/note_popup/" + e.layer.feature.id + "/", function(data) {
+        console.log(data);
+        e.layer.bindPopup(data);
+    });
+});
+
 var show = (function(position) {
     console.log("Latitude: " + position.coords.latitude + "Longitude: " + position.coords.longitude);
     point_string = "POINT(" + position.coords.longitude + " " + position.coords.latitude +")";
