@@ -73,6 +73,16 @@ def popup(request, **kwargs):
     return render(request, 'powermap/popup.html', context)
 
 
+def note_popup(request, **kwargs):
+    help_note_id = kwargs['note_id']
+    note = HelpNote.objects.get(id=help_note_id)
+    context = {
+        "address": note.address, "message": note.message,
+        "creator": note.creator
+    }
+    return render(request, 'powermap/note_popup.html', context)
+
+
 def note_form(request, **kwargs):
     form = HelpNoteModelForm()
     return render(request, 'powermap/note_form.html', {"form": form})
