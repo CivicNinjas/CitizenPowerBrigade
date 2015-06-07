@@ -30,6 +30,7 @@ myLayer.on('click', function(e){
     $.get("http://127.0.0.1:8000/pttp/popup/" + e.layer.feature.id + "/", function(data) {
         console.log(data);
         e.layer.bindPopup(data);
+        e.layer.openPopup();
     });
 });
 
@@ -37,6 +38,7 @@ noteLayer.on('click', function(e){
     $.get("http://127.0.0.1:8000/pttp/note_popup/" + e.layer.feature.id + "/", function(data) {
         console.log(data);
         e.layer.bindPopup(data);
+        e.layer.openPopup();
     });
 });
 
