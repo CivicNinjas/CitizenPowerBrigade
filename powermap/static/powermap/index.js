@@ -40,22 +40,21 @@ noteLayer.on('click', function(e){
     });
 });
 
-var show = (function(position) {
-    console.log("Latitude: " + position.coords.latitude + "Longitude: " + position.coords.longitude);
+var getLocation = (function() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(setLocation);
+    } else {
+        console.log("Geolocation is not supported by this browser.");
+    }
+});
+
+var setLocation = (function(position) {
     point_string = "POINT(" + position.coords.longitude + " " + position.coords.latitude +")";
     $("#id_location").val(point_string);
 });
 
-var aye = (function() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(show);
-    } else {
-        console.log("Geolocation is not supported by this browser.");
-    }
-})
 
-
-aye();
+getLocation();
 
 getData();
 getNotes();
