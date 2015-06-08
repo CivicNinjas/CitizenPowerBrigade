@@ -6,9 +6,6 @@ from django.utils import timezone
 from rest_framework import viewsets
 from serializers import PowerCarSerializer, UserSerializer, HelpNoteSerializer
 from django.shortcuts import render, redirect
-from rest_framework import status
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
 
 
 class PowerCarViewSet(viewsets.ModelViewSet):
@@ -43,23 +40,30 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 
-@api_view(['POST'])
 def create_note(request):
     """
     List all snippets, or create a new snippet.
     """
 
     if request.method == 'POST':
-        serializer = HelpNoteSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
+        form = HelpNoteModelForm(request.POST)
+        if form.is_valid():
+            form.save()
             return redirect('index')
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return render(request, 'powermap/index.html', {'form': form})
 
 
 def index(request):
-    form = HelpNoteModelForm()
-    return render(request, 'powermap/index.html', {"form": form})
+    if request.method == 'POST':
+        form = HelpNoteModelForm(request.POST)
+        if form.is_valid():
+            form.save()
+            form = HelpNoteModelForm()
+            return render(request, 'powermap/index.html', {"form": form})
+        return render(request, 'powermap/index.html', {'form': form})
+    else:
+        form = HelpNoteModelForm()
+        return render(request, 'powermap/index.html', {"form": form})
 
 
 def popup(request, **kwargs):
