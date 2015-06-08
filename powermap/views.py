@@ -59,7 +59,7 @@ def index(request):
         if form.is_valid():
             form.save()
             form = HelpNoteModelForm()
-            return render(request, 'powermap/index.html', {"form": form})
+            return redirect('index')
         return render(request, 'powermap/index.html', {'form': form})
     else:
         form = HelpNoteModelForm()
