@@ -23,3 +23,22 @@ class HelpNote(models.Model):
     creator = models.CharField(max_length=63)
     location = models.PointField()
     objects = models.GeoManager()
+
+
+class Diagnostic(models.Model):
+    # An onboard diagnostic log.
+    timestamp = models.DateTimeField()
+    coolant_temp = models.DecimalField(max_digits=6, decimal_places=2)
+    fuel_gage = models.DecimalField(max_digits=5, decimal_places=2)
+    lv_batt_volts = models.DecimalField(max_digits=6, decimal_places=2)
+    hv_batt_volts = models.DecimalField(max_digits=6, decimal_places=2)
+    hv_batt_soc = models.DecimalField(max_digits=5, decimal_places=2)
+    hv_batt_amps = models.DecimalField(max_digits=4, decimal_places=1)
+    error = models.CharField(max_length=127)
+
+
+class Inverter(models.Model):
+    timestamp = models.DateTimeField()
+    volts = models.DecimalField(max_digits=4, decimal_places=1)
+    amps = models.DecimalField(max_digits=3, decimal_places=1)
+    kwh = models.DecimalField(max_digits=4, decimal_places=1)
