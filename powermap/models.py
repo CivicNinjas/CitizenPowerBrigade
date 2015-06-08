@@ -48,6 +48,7 @@ class Inverter(models.Model):
 
 class GPS(models.Model):
     timestamp = models.DateTimeField()
+    vehicle = models.ForeignKey(PowerCar)
     location = models.PointField()
     objects = models.GeoManager()
-    vehicle = models.ForeignKey(PowerCar)
+
