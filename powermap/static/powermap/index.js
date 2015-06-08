@@ -5,7 +5,7 @@ var map =L.mapbox.map('map', 'harbieism.mbb67n8i');
 
 var myLayer = L.mapbox.featureLayer().addTo(map);
 
-var noteLayer = L.mapbox.featureLayer().addTo(map);
+var noteLayer = L.mapbox.featureLayer();
 
 var getData = (function() {
     $.get("http://127.0.0.1:8000/powercars/?format=json", function(data) {
@@ -27,6 +27,9 @@ var getNotes = (function() {
             data.results.features[i].properties["marker-color"] = "#fc4353";
         }
         noteLayer.setGeoJSON(data.results);
+        var clusterGroup = new L.MarkerClusterGroup();
+        clusterGroup.addLayer(noteLayer);
+        map.addLayer(clusterGroup);
     });
 });
 
