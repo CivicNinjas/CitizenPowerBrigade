@@ -12,13 +12,11 @@ class HelpNoteModelForm(forms.ModelForm):
         self.helper.form_method = 'post'
         self.helper.form_action = 'create_note/'
         self.helper.layout = Layout(
-            Fieldset(
-                'Post a note about your situation',
                 'address',
                 'message',
                 'creator',
-                'location'
-            ),
+                'location',
+            
             ButtonHolder(
                 Submit('submit', 'Submit', css_class='button white')
             )
