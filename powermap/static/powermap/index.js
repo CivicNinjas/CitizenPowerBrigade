@@ -7,7 +7,6 @@ var myLayer = L.mapbox.featureLayer().addTo(map);
 
 var noteLayer = L.mapbox.featureLayer().addTo(map);
 
-
 var getData = (function() {
     $.get("http://127.0.0.1:8000/powercars/?format=json", function(data) {
         for(var i = 0; i < data.results.features.length; i++){
@@ -15,7 +14,6 @@ var getData = (function() {
             data.results.features[i].properties["marker-size"] = "large";
             data.results.features[i].properties["marker-color"] = "#fc4353";
         }
-        map.setView([50.11, 44.99], 10);
         myLayer.setGeoJSON(data.results);
     });
 });
@@ -28,7 +26,6 @@ var getNotes = (function() {
             data.results.features[i].properties["marker-size"] = "large";
             data.results.features[i].properties["marker-color"] = "#fc4353";
         }
-        map.setView([50.11, 44.99], 10);
         noteLayer.setGeoJSON(data.results);
     });
 });
@@ -42,7 +39,6 @@ myLayer.on('click', function(e){
 
 noteLayer.on('click', function(e){
     $.get("http://127.0.0.1:8000/pttp/note_popup/" + e.layer.feature.id + "/", function(data) {
-        console.log(data);
         e.layer.bindPopup(data);
         e.layer.openPopup();
     });
