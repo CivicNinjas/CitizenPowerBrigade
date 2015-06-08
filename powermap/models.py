@@ -51,4 +51,3 @@ class GPS(models.Model):
     vehicle = models.ForeignKey(PowerCar)
     location = models.PointField()
     objects = models.GeoManager()
-
