@@ -3,7 +3,7 @@ L.mapbox.accessToken = 'pk.eyJ1IjoiaGFyYmllaXNtIiwiYSI6IksyU1Rkc0UifQ.eXciAIxM0p
 // Create a map in the div #map
 var map =L.mapbox.map('map', 'harbieism.mbb67n8i');
 
-var myLayer = L.mapbox.featureLayer().addTo(map);
+var carLayer = L.mapbox.featureLayer().addTo(map);
 
 var noteLayer = L.mapbox.featureLayer().addTo(map);
 
@@ -16,7 +16,7 @@ var getData = (function() {
             data.results.features[i].properties["marker-color"] = "#fc4353";
         }
         map.setView([50.11, 44.99], 10);
-        myLayer.setGeoJSON(data.results);
+        carLayer.setGeoJSON(data.results);
     });
 });
 
@@ -29,11 +29,13 @@ var getNotes = (function() {
             data.results.features[i].properties["marker-color"] = "#fc4353";
         }
         map.setView([50.11, 44.99], 10);
+        var clusterGroup = new L.MarkerClusterGroup();
+        clusterGroup.addLayer(noteLayer);
         noteLayer.setGeoJSON(data.results);
     });
 });
 
-myLayer.on('click', function(e){
+carLayer.on('click', function(e){
     $.get("http://127.0.0.1:8000/pttp/popup/" + e.layer.feature.id + "/", function(data) {
         e.layer.bindPopup(data);
         e.layer.openPopup();
