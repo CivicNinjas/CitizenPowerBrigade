@@ -35,6 +35,7 @@ class Diagnostic(models.Model):
     hv_batt_soc = models.DecimalField(max_digits=5, decimal_places=2)
     hv_batt_amps = models.DecimalField(max_digits=4, decimal_places=1)
     error = models.CharField(max_length=127)
+    vehicle = models.ForeignKey(PowerCar)
 
 
 class Inverter(models.Model):
@@ -42,3 +43,11 @@ class Inverter(models.Model):
     volts = models.DecimalField(max_digits=4, decimal_places=1)
     amps = models.DecimalField(max_digits=3, decimal_places=1)
     kwh = models.DecimalField(max_digits=4, decimal_places=1)
+    vehicle = models.ForeignKey(PowerCar)
+
+
+class GPS(models.Model):
+    timestamp = models.DateTimeField()
+    location = models.PointField()
+    objects = models.GeoManager()
+    vehicle = models.ForeignKey(PowerCar)
