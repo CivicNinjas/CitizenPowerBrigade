@@ -1,10 +1,18 @@
-from powermap.models import PowerCar, HelpNote
+from powermap.models import PowerCar, HelpNote, Diagnostic, Inverter, GPS
 from powermap.forms import HelpNoteModelForm
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.utils import timezone
 from rest_framework import viewsets
-from serializers import PowerCarSerializer, UserSerializer, HelpNoteSerializer
+from rest_framework.decorators import api_view
+from serializers import (
+    PowerCarSerializer,
+    UserSerializer, 
+    HelpNoteSerializer,
+    DiagnosticSerializer,
+    InverterSerializer,
+    GPSSerializer
+)
 from django.shortcuts import render, redirect
 
 
