@@ -1,4 +1,4 @@
-from powermap.models import PowerCar, HelpNote
+from powermap.models import PowerCar, HelpNote, Diagnostic, Inverter, GPS
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
@@ -13,6 +13,22 @@ class PowerCarSerializer(GeoFeatureModelSerializer):
 class HelpNoteSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = HelpNote
+        geo_field = 'location'
+
+
+class DiagnosticSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Diagnostic
+
+
+class InverterSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Inverter
+
+
+class GPSSerializer(GeoFeatureModelSerializer):
+    class Meta:
+        model = GPS
         geo_field = 'location'
 
 
