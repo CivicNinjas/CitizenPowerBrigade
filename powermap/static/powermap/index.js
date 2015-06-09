@@ -12,6 +12,8 @@ var lineStringMarker = null;
 
 var secondMarker = null;
 
+var clusterGroup = new L.MarkerClusterGroup();
+
 var getData = (function(callback) {
     $.get("http://127.0.0.1:8000/powercars/?format=json", function(data) {
         var polyline = L.polyline([]).addTo(map);
@@ -99,12 +101,18 @@ getLocation();
           data.results.features[i].properties["marker-size"] = "large";
           data.results.features[i].properties["marker-color"] = "#fc4353";
       }
+      noteLayer.setGeoJSON([]);
       noteLayer.setGeoJSON(data.results);
-      var clusterGroup = new L.MarkerClusterGroup();
+      clusterGroup.clearLayers(noteLayer);
       clusterGroup.addLayer(noteLayer);
       map.addLayer(clusterGroup);
-      setTimeout(worker, 5000);
+      setTimeout(worker, 60000);
   });
+})();
+
+
+(function workerTwo() {
+
 })();
 
 
@@ -129,6 +137,7 @@ getData(function(result) {
         console.log(response);
       });
   });
-
 });
+
+
 });
