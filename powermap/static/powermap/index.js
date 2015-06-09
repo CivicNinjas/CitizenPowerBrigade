@@ -36,6 +36,7 @@ var getData = (function(callback) {
             break;
         }
         secondMarker.options.draggable = true;
+        secondMarker.options.zIndexOffset = 1000;
         var c = secondMarker.getLatLng();
         var latlngs = [fc, c]
         var polyline = L.polyline(latlngs, {color: 'blue'}).addTo(map);
