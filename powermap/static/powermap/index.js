@@ -1,3 +1,4 @@
+$( document ).ready(function() {
 // Provide your access token
 L.mapbox.accessToken = 'pk.eyJ1IjoiaGFyYmllaXNtIiwiYSI6IksyU1Rkc0UifQ.eXciAIxM0pfdj5STBHNnbQ';
 // Create a map in the div #map
@@ -21,7 +22,6 @@ var getData = (function(callback) {
             data.results.features[i].properties["marker-size"] = "large";
             data.results.features[i].properties["marker-color"] = "#fc4353";
         }
-        console.log(id);
         var temp = carLayer.setGeoJSON(data.results)._layers;
         for (var prop in temp){
             var marker = temp[prop];
@@ -30,10 +30,20 @@ var getData = (function(callback) {
         var fc = marker.getLatLng();
         var lineStringMarker = L.mapbox.featureLayer().addTo(map);
         var soon_marker = marker.feature.properties.next_location;
+        soon_marker.properties = {
+            'marker-symbol': 'marker-stroked',
+            'marker-size': 'large',
+            'marker-color': '#0044ff'
+        }
         var temp = lineStringMarker.setGeoJSON(soon_marker)._layers;
         for (var prop in temp){
             secondMarker = temp[prop];
             break;
+        }
+        secondMarker.feature.properties = {
+            'marker-symbol': 'marker-stroked',
+            'marker-size': 'large',
+            'marker-color': '#0044ff'
         }
         secondMarker.options.draggable = true;
         secondMarker.options.zIndexOffset = 1000;
@@ -103,7 +113,6 @@ getData(function(result) {
   polyline = result[2];
   result[1].on('drag', function(e){
     var loc = result[1].getLatLng();
-
     polyline.setLatLngs([result[0], loc]);
   });
 
@@ -121,4 +130,5 @@ getData(function(result) {
       });
   });
 
+});
 });
