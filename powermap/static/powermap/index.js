@@ -47,18 +47,7 @@ var getData = (function(callback) {
 
 
 var getNotes = (function() {
-    $.get("http://127.0.0.1:8000/helpnotes/?format=json", function(data) {
-        var dataStorage = data;
-        for(var i = 0; i < data.results.features.length; i++){
-            data.results.features[i].properties["marker-symbol"] = "oil-well";
-            data.results.features[i].properties["marker-size"] = "large";
-            data.results.features[i].properties["marker-color"] = "#fc4353";
-        }
-        noteLayer.setGeoJSON(data.results);
-        var clusterGroup = new L.MarkerClusterGroup();
-        clusterGroup.addLayer(noteLayer);
-        map.addLayer(clusterGroup);
-    });
+    
 });
 
 carLayer.on('click', function(e){
@@ -92,7 +81,21 @@ var setLocation = (function(position) {
 
 getLocation();
 
-getNotes();
+(function worker() {
+  $.get("http://127.0.0.1:8000/helpnotes/?format=json", function(data) {
+      var dataStorage = data;
+      for(var i = 0; i < data.results.features.length; i++){
+          data.results.features[i].properties["marker-symbol"] = "oil-well";
+          data.results.features[i].properties["marker-size"] = "large";
+          data.results.features[i].properties["marker-color"] = "#fc4353";
+      }
+      noteLayer.setGeoJSON(data.results);
+      var clusterGroup = new L.MarkerClusterGroup();
+      clusterGroup.addLayer(noteLayer);
+      map.addLayer(clusterGroup);
+      setTimeout(worker, 5000);
+  });
+})();
 
 
 getData(function(result) {
