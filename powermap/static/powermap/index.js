@@ -7,17 +7,40 @@ var carLayer = L.mapbox.featureLayer().addTo(map);
 
 var noteLayer = L.mapbox.featureLayer();
 
-var getData = (function() {
+var lineStringMarker = null;
+
+var secondMarker = null;
+
+var getData = (function(callback) {
     $.get("http://127.0.0.1:8000/powercars/?format=json", function(data) {
+        var polyline = L.polyline([]).addTo(map);
         for(var i = 0; i < data.results.features.length; i++){
             data.results.features[i].properties["marker-symbol"] = "car";
             data.results.features[i].properties["marker-size"] = "large";
             data.results.features[i].properties["marker-color"] = "#fc4353";
         }
-
-        carLayer.setGeoJSON(data.results);
+        var temp = carLayer.setGeoJSON(data.results)._layers;
+        for (var prop in temp){
+            var marker = temp[prop];
+            break;
+        }
+        var fc = marker.getLatLng();
+        var lineStringMarker = L.mapbox.featureLayer().addTo(map);
+        var soon_marker = marker.feature.properties.next_location;
+        var temp = lineStringMarker.setGeoJSON(soon_marker)._layers;
+        for (var prop in temp){
+            secondMarker = temp[prop];
+            break;
+        }
+        secondMarker.options.draggable = true;
+        var c = secondMarker.getLatLng();
+        var latlngs = [fc, c]
+        var polyline = L.polyline(latlngs, {color: 'blue'}).addTo(map);
+        callback([fc, secondMarker, polyline]);
     });
 });
+
+
 
 var getNotes = (function() {
     $.get("http://127.0.0.1:8000/helpnotes/?format=json", function(data) {
@@ -65,5 +88,16 @@ var setLocation = (function(position) {
 
 getLocation();
 
-getData();
 getNotes();
+
+
+getData(function(result) {
+  result[1].options.draggable = true;
+  polyline = result[2]
+  result[1].on('drag', function(e){
+    var loc = result[1].getLatLng();
+
+      polyline.setLatLngs([result[0], loc]);
+    });
+
+});
