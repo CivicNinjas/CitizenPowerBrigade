@@ -9,8 +9,16 @@
   <link href='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.css' rel='stylesheet' />
   <link href='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.Default.css' rel='stylesheet' />
 
+
 {% endblock %}
 {% block content %}
-  <div id='map'></div>
+  <div id='map'>
+  {% if user.is_authenticated %}
+    <nav class='menu-ui'>
+      {% csrf_token %}
+      <button type="button" class="btn btn-primary" id="change_next">Change Next Location</button>
+    </nav>
+  {% endif %}
+  </div>
   <script src="{% static 'powermap/index.js' %}"></script>
 {% endblock %}
