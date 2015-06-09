@@ -1,19 +1,25 @@
-from powermap.models import PowerCar, HelpNote, Diagnostic, Inverter, GPS
 from powermap.forms import HelpNoteModelForm
+from powermap.models import PowerCar, HelpNote, Diagnostic, Inverter, GPS
+
 from django.contrib.auth.models import User
+from django.contrib.gis.geos import Point
 from django.contrib.sessions.models import Session
+from django.http import HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
+
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from serializers import (
     PowerCarSerializer,
-    UserSerializer, 
+    UserSerializer,
     HelpNoteSerializer,
     DiagnosticSerializer,
     InverterSerializer,
     GPSSerializer
 )
-from django.shortcuts import render, redirect
+
+import json
 
 
 class PowerCarViewSet(viewsets.ModelViewSet):
@@ -98,3 +104,36 @@ def note_popup(request, **kwargs):
 def note_form(request, **kwargs):
     form = HelpNoteModelForm()
     return render(request, 'powermap/note_form.html', {"form": form})
+
+
+def change_location(request, *args, **kwargs):
+    if request.method == "POST":
+        identified_user = get_object_or_404(User, pk=request.user.id)
+        user_car = get_object_or_404(PowerCar, owner=identified_user)
+        response_data = {}
+        car_id = kwargs.get('car_id')
+        if user_car.id != int(car_id):
+            return HttpResponse(
+                json.dumps({"result": "Cars don't match"}),
+                content_type="application/json"
+            )
+        lat = request.POST.get("lat")
+        lng = request.POST.get("lng")
+        new_point = Point(float(lng), float(lat))
+        car = get_object_or_404(PowerCar, pk=car_id)
+        car.next_location = new_point
+        car.save()
+
+        response_data['result'] = 'Change next successfully'
+        response_data['car_id'] = car_id
+
+        return HttpResponse(
+            json.dumps(response_data),
+            content_type="application/json"
+        )
+
+    else:
+        return HttpResponse(
+            json.dumps({"result": "Not successfull"}),
+            content_type="application/json"
+        )

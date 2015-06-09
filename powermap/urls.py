@@ -11,5 +11,10 @@ urlpatterns = [
         r'^note_popup/(?P<note_id>\d+)/$',
         views.note_popup,
         name='note_popup'
+    ),
+    url(
+        r'^cars/(?P<car_id>[0-9]+)/change_location/$',
+        views.change_location,
+        name='change_location'
     )
 ]
