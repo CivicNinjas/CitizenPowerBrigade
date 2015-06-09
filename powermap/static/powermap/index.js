@@ -14,11 +14,14 @@ var secondMarker = null;
 var getData = (function(callback) {
     $.get("http://127.0.0.1:8000/powercars/?format=json", function(data) {
         var polyline = L.polyline([]).addTo(map);
+        var id = null;
         for(var i = 0; i < data.results.features.length; i++){
+            id = data.results.features[i].id;
             data.results.features[i].properties["marker-symbol"] = "car";
             data.results.features[i].properties["marker-size"] = "large";
             data.results.features[i].properties["marker-color"] = "#fc4353";
         }
+        console.log(id);
         var temp = carLayer.setGeoJSON(data.results)._layers;
         for (var prop in temp){
             var marker = temp[prop];
@@ -36,7 +39,7 @@ var getData = (function(callback) {
         var c = secondMarker.getLatLng();
         var latlngs = [fc, c]
         var polyline = L.polyline(latlngs, {color: 'blue'}).addTo(map);
-        callback([fc, secondMarker, polyline]);
+        callback([fc, secondMarker, polyline, id]);
     });
 });
 
@@ -93,11 +96,25 @@ getNotes();
 
 getData(function(result) {
   result[1].options.draggable = true;
-  polyline = result[2]
+  polyline = result[2];
   result[1].on('drag', function(e){
     var loc = result[1].getLatLng();
 
-      polyline.setLatLngs([result[0], loc]);
-    });
+    polyline.setLatLngs([result[0], loc]);
+  });
+
+  $('#change_next').click(function() {
+      var csrftoken = $.cookie('csrftoken');
+      var loc = result[1].getLatLng();
+      var post_data = {
+          'lat': loc.lat,
+          'lng': loc.lng,
+          'csrfmiddlewaretoken': csrftoken,
+      }
+      var post_url = "http://127.0.0.1:8000/pttp/cars/" + result[3] + "/change_location/";
+      $.post(post_url, post_data, function(response) {
+        console.log(response);
+      });
+  });
 
 });
