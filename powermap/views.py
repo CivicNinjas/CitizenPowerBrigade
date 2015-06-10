@@ -5,12 +5,15 @@ from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.contrib.gis.geos import Point
 from django.contrib.sessions.models import Session
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+
 from serializers import (
     PowerCarSerializer,
     UserSerializer,
@@ -59,7 +62,6 @@ def create_note(request):
     """
     List all snippets, or create a new snippet.
     """
-
     if request.method == 'POST':
         form = HelpNoteModelForm(request.POST)
         if form.is_valid():
@@ -146,6 +148,7 @@ def update_current_location(request, *args, **kwargs):
         user_car = get_object_or_404(PowerCar, owner=identified_user)
         response_data = {}
         car_id = kwargs.get('car_id')
+        print car_id
         if user_car.id != int(car_id):
             return HttpResponse(
                 json.dumps({"result": "Cars don't match"}),
@@ -176,3 +179,13 @@ def update_current_location(request, *args, **kwargs):
 def logout_view(request):
     logout(request)
     return redirect('index')
+
+
+def get_user_car(request):
+    uid = request.user.id
+    print uid
+    user = User.objects.get(id=uid)
+    car = PowerCar.objects.get(owner=user)
+    serializer = PowerCarSerializer(car)
+    print type(serializer.data)
+    return JsonResponse(serializer.data)
