@@ -14,9 +14,10 @@ var secondMarker = null;
 
 var clusterGroup = new L.MarkerClusterGroup();
 
-var getData = (function(callback) {
+var polyline = L.polyline([]).addTo(map);
+
+var updateCar = (function(callback) {
     $.get("http://127.0.0.1:8000/powercars/?format=json", function(data) {
-        var polyline = L.polyline([]).addTo(map);
         var id = null;
         for(var i = 0; i < data.results.features.length; i++){
             id = data.results.features[i].id;
@@ -29,6 +30,35 @@ var getData = (function(callback) {
             var marker = temp[prop];
             break;
         }
+        var fc = marker.getLatLng();
+        callback([fc]);
+    });
+});
+
+(function workerTwo() {
+  updateCar(function(result) {
+    polyline.spliceLatLngs(0, 1, result[0]);
+
+  });
+
+    setTimeout(workerTwo, 15000);
+})();
+
+var getData = (function(callback) {
+    $.get("http://127.0.0.1:8000/powercars/?format=json", function(data) {
+        var id = null;
+        for(var i = 0; i < data.results.features.length; i++){
+            id = data.results.features[i].id;
+            data.results.features[i].properties["marker-symbol"] = "car";
+            data.results.features[i].properties["marker-size"] = "large";
+            data.results.features[i].properties["marker-color"] = "#fc4353";
+        }
+        var temp = carLayer.setGeoJSON(data.results)._layers;
+        for (var prop in temp){
+            var marker = temp[prop];
+            break;
+        }
+        
         var fc = marker.getLatLng();
         var lineStringMarker = L.mapbox.featureLayer().addTo(map);
         var soon_marker = marker.feature.properties.next_location;
@@ -48,6 +78,8 @@ var getData = (function(callback) {
             'marker-color': '#0044ff'
         }
         secondMarker.options.draggable = true;
+        secondMarker.dragging.enable();
+        console.log(secondMarker);
         secondMarker.options.zIndexOffset = 1000;
         var c = secondMarker.getLatLng();
         var latlngs = [fc, c]
@@ -111,9 +143,6 @@ getLocation();
 })();
 
 
-(function workerTwo() {
-
-})();
 
 
 getData(function(result) {
@@ -121,7 +150,7 @@ getData(function(result) {
   polyline = result[2];
   result[1].on('drag', function(e){
     var loc = result[1].getLatLng();
-    polyline.setLatLngs([result[0], loc]);
+    polyline.spliceLatLngs(1, 1, loc);
   });
 
   $('#change_next').click(function() {
@@ -138,6 +167,8 @@ getData(function(result) {
       });
   });
 });
+
+
 
 
 });
