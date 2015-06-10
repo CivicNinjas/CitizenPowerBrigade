@@ -21,5 +21,6 @@ urlpatterns = [
         r'^cars/(?P<car_id>[0-9]+)/update_current_location/$',
         views.update_current_location,
         name='update_current_location'
-    )
+    ),
+    url(r'^logout/$', views.logout_view, name='logout')
 ]

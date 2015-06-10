@@ -1,6 +1,7 @@
 from powermap.forms import HelpNoteModelForm
 from powermap.models import PowerCar, HelpNote, Diagnostic, Inverter, GPS
 
+from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.contrib.gis.geos import Point
 from django.contrib.sessions.models import Session
@@ -170,3 +171,8 @@ def update_current_location(request, *args, **kwargs):
             json.dumps({"result": "Not successfull"}),
             content_type="application/json"
         )
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('index')
