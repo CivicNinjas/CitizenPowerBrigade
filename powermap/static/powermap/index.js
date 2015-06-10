@@ -31,16 +31,26 @@ var updateCar = (function(callback) {
             break;
         }
         var fc = marker.getLatLng();
-        callback([fc]);
+        callback([fc, id]);
     });
 });
 
 (function workerTwo() {
   updateCar(function(result) {
     polyline.spliceLatLngs(0, 1, result[0]);
-
+    navigator.geolocation.getCurrentPosition(function(position) {
+      var csrftoken = $.cookie('csrftoken');
+      var post_data = {
+          'lat': position.coords.latitude,
+          'lng': position.coords.longitude,
+          'csrfmiddlewaretoken': csrftoken,
+      }
+      var post_url = "http://127.0.0.1:8000/pttp/cars/" + result[1] + "/update_current_location/";
+      $.post(post_url, post_data, function(response) {
+        console.log(response);
+      });
+    });
   });
-
     setTimeout(workerTwo, 15000);
 })();
 
@@ -86,12 +96,6 @@ var getData = (function(callback) {
         var polyline = L.polyline(latlngs, {color: 'blue'}).addTo(map);
         callback([fc, secondMarker, polyline, id]);
     });
-});
-
-
-
-var getNotes = (function() {
-    
 });
 
 carLayer.on('click', function(e){
@@ -153,6 +157,7 @@ getData(function(result) {
     polyline.spliceLatLngs(1, 1, loc);
   });
 
+
   $('#change_next').click(function() {
       var csrftoken = $.cookie('csrftoken');
       var loc = result[1].getLatLng();
@@ -166,6 +171,8 @@ getData(function(result) {
         console.log(response);
       });
   });
+
+
 });
 
 
