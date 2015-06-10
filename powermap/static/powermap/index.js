@@ -2,15 +2,21 @@ $( document ).ready(function() {
   // Provide your access token
   L.mapbox.accessToken = 'pk.eyJ1IjoiaGFyYmllaXNtIiwiYSI6IksyU1Rkc0UifQ.eXciAIxM0pfdj5STBHNnbQ';
   // Create a map in the div #map
-  var map =L.mapbox.map('map', 'harbieism.mbb67n8i');
+  var map = L.mapbox.map('map', 'harbieism.mbb67n8i');
+
+  map.addControl(L.mapbox.geocoderControl('mapbox.places', {
+    autocomplete: true
+  }));
 
   var carLayer = L.mapbox.featureLayer().addTo(map);
 
   var noteLayer = L.mapbox.featureLayer();
 
-  var lineStringMarker = null;
+  var lineStringMarker = L.mapbox.featureLayer().addTo(map);
 
   var secondMarker = null;
+
+  var staticSecond = null;
 
   var clusterGroup = new L.MarkerClusterGroup();
 
@@ -48,7 +54,6 @@ $( document ).ready(function() {
         }
         var post_url = "http://127.0.0.1:8000/pttp/cars/" + result[1] + "/update_current_location/";
         $.post(post_url, post_data, function(response) {
-          console.log(response);
         });
       });
     });
@@ -71,26 +76,25 @@ $( document ).ready(function() {
         break;
       }
       var fc = marker.getLatLng();
-      var lineStringMarker = L.mapbox.featureLayer().addTo(map);
       var soon_marker = marker.feature.properties.next_location;
       soon_marker.properties = {
-        'marker-symbol': 'marker-stroked',
-        'marker-size': 'large',
-        'marker-color': '#0044ff'
+        
       }
-      var temp = lineStringMarker.setGeoJSON(soon_marker)._layers;
-      for (var prop in temp){
-        secondMarker = temp[prop];
-        break;
-      }
-      secondMarker.feature.properties = {
-        'marker-symbol': 'marker-stroked',
-        'marker-size': 'large',
-        'marker-color': '#0044ff'
-      }
-      secondMarker.options.draggable = true;
-      secondMarker.dragging.enable();
-      console.log(secondMarker);
+      console.log(soon_marker);
+      var lat_second = soon_marker.coordinates[0];
+      var lng_second = soon_marker.coordinates[1];
+
+      var secondMarker = L.marker(new L.LatLng(lng_second, lat_second), {
+        icon: L.mapbox.marker.icon({
+          'marker-symbol': 'marker-stroked',
+          'marker-size': 'large',
+          'marker-color': '#0044ff'
+        }),
+        draggable: true,
+        zIndexOffset: 1000
+      });
+      secondMarker.addTo(map);
+
       secondMarker.options.zIndexOffset = 1000;
       var c = secondMarker.getLatLng();
       var latlngs = [fc, c]
@@ -148,7 +152,6 @@ $( document ).ready(function() {
   })();
 
   getData(function(result) {
-    result[1].options.draggable = true;
     polyline = result[2];
     result[1].on('drag', function(e){
       var loc = result[1].getLatLng();
@@ -165,7 +168,6 @@ $( document ).ready(function() {
       }
       var post_url = "http://127.0.0.1:8000/pttp/cars/" + result[3] + "/change_location/";
       $.post(post_url, post_data, function(response) {
-        console.log(response);
       });
     });
   });
