@@ -137,3 +137,36 @@ def change_location(request, *args, **kwargs):
             json.dumps({"result": "Not successfull"}),
             content_type="application/json"
         )
+
+
+def update_current_location(request, *args, **kwargs):
+    if request.method == "POST":
+        identified_user = get_object_or_404(User, pk=request.user.id)
+        user_car = get_object_or_404(PowerCar, owner=identified_user)
+        response_data = {}
+        car_id = kwargs.get('car_id')
+        if user_car.id != int(car_id):
+            return HttpResponse(
+                json.dumps({"result": "Cars don't match"}),
+                content_type="application/json"
+            )
+        lat = request.POST.get("lat")
+        lng = request.POST.get("lng")
+        new_point = Point(float(lng), float(lat))
+        car = get_object_or_404(PowerCar, pk=car_id)
+        car.current_location = new_point
+        car.save()
+
+        response_data['result'] = 'Change next successfully'
+        response_data['car_id'] = car_id
+
+        return HttpResponse(
+            json.dumps(response_data),
+            content_type="application/json"
+        )
+
+    else:
+        return HttpResponse(
+            json.dumps({"result": "Not successfull"}),
+            content_type="application/json"
+        )
