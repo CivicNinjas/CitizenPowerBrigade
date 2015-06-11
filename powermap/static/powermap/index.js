@@ -28,7 +28,7 @@ $( document ).ready(function() {
       var id = data.id;
       data.properties["marker-symbol"] = "car";
       data.properties["marker-size"] = "large";
-      data.properties["marker-color"] = "#fc4353";
+      data.properties["marker-color"] = "#bad696";
       var temp = carLayer.setGeoJSON(data)._layers;
       for (var prop in temp){
         var marker = temp[prop];
@@ -65,7 +65,7 @@ $( document ).ready(function() {
       var id = data.id;
       data.properties["marker-symbol"] = "car";
       data.properties["marker-size"] = "large";
-      data.properties["marker-color"] = "#fc4353";
+      data.properties["marker-color"] = "#bad696";
       var temp = carLayer.setGeoJSON(data)._layers;
       for (var prop in temp){
         var marker = temp[prop];
