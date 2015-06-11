@@ -10,6 +10,8 @@ $( document ).ready(function() {
 
   var carLayer = L.mapbox.featureLayer().addTo(map);
 
+  var otherCars = L.mapbox.featureLayer().addTo(map);
+
   var noteLayer = L.mapbox.featureLayer();
 
   var lineStringMarker = L.mapbox.featureLayer().addTo(map);
@@ -20,7 +22,8 @@ $( document ).ready(function() {
 
   var clusterGroup = new L.MarkerClusterGroup();
 
-  var polyline = L.polyline([]).addTo(map);
+  var targetLine = L.polyline([]).addTo(map);
+
 
 
   var updateCar = (function(callback) {
@@ -34,16 +37,45 @@ $( document ).ready(function() {
         var marker = temp[prop];
         break;
       }
-      console.log(temp);
       var fc = marker.getLatLng();
       callback([fc, id]);
+    });
+  });
+
+  var getOtherCars = (function() {
+    $.get("/pttp/cars/get_other_cars/", function(data) {
+      for(var i = 0; i < data.features.length; i++){
+        feat = data.features[i];
+        feat.properties["marker-symbol"] = "car";
+        feat.properties["marker-size"] = "large";
+        feat.properties["marker-color"] = "#bbf696";
+      }
+      otherCars.setGeoJSON(data)._layers;
+      for(var i = 0; i < data.features.length; i++){
+        feat = data.features[i];
+        start_lat_lng = new L.LatLng(feat.geometry.coordinates[1], feat.geometry.coordinates[0]);
+        end_lat_lng = new L.LatLng(
+            feat.properties.next_location.coordinates[1],
+            feat.properties.next_location.coordinates[0]
+        );
+        var marksTheSpot = L.marker(end_lat_lng, {
+          icon: L.mapbox.marker.icon({
+            'marker-symbol': 'cross',
+            'marker-size': 'medium',
+            'marker-color': '#bbf696'
+          }),
+        });
+        marksTheSpot.addTo(otherCars);
+        newlatlngs = [start_lat_lng, end_lat_lng]
+        temp = L.polyline(newlatlngs, {color: '#abf696', opacity: "0.9"}).addTo(otherCars);
+      }
     });
   });
 
 
   (function workerTwo() {
     updateCar(function(result) {
-      polyline.spliceLatLngs(0, 1, result[0]);
+      targetLine.spliceLatLngs(0, 1, result[0]);
       navigator.geolocation.getCurrentPosition(function(position) {
         var csrftoken = $.cookie('csrftoken');
         var post_data = {
@@ -65,7 +97,7 @@ $( document ).ready(function() {
       var id = data.id;
       data.properties["marker-symbol"] = "car";
       data.properties["marker-size"] = "large";
-      data.properties["marker-color"] = "#bad696";
+      data.properties["marker-color"] = "#0044ff";
       var temp = carLayer.setGeoJSON(data)._layers;
       for (var prop in temp){
         var marker = temp[prop];
@@ -90,8 +122,9 @@ $( document ).ready(function() {
       secondMarker.options.zIndexOffset = 1000;
       var c = secondMarker.getLatLng();
       var latlngs = [fc, c]
-      var polyline = L.polyline(latlngs, {color: 'blue'}).addTo(map);
-      callback([fc, secondMarker, polyline, id]);
+      var targetLine = L.polyline(latlngs, {color: 'blue'}).addTo(map);
+      console.log(targetLine);
+      callback([fc, secondMarker, targetLine, id]);
     });
   });
 
@@ -144,10 +177,10 @@ $( document ).ready(function() {
   })();
 
   getData(function(result) {
-    polyline = result[2];
+    targetLine = result[2];
     result[1].on('drag', function(e){
       var loc = result[1].getLatLng();
-      polyline.spliceLatLngs(1, 1, loc);
+      targetLine.spliceLatLngs(1, 1, loc);
     });
 
     $('#change_next').click(function() {
@@ -163,5 +196,8 @@ $( document ).ready(function() {
       });
     });
   });
+
+  getOtherCars();
+
 
 });
