@@ -22,20 +22,19 @@ $( document ).ready(function() {
 
   var polyline = L.polyline([]).addTo(map);
 
+
   var updateCar = (function(callback) {
-    $.get("http://127.0.0.1:8000/powercars/?format=json", function(data) {
-      var id = null;
-      for(var i = 0; i < data.results.features.length; i++){
-        id = data.results.features[i].id;
-        data.results.features[i].properties["marker-symbol"] = "car";
-        data.results.features[i].properties["marker-size"] = "large";
-        data.results.features[i].properties["marker-color"] = "#fc4353";
-      }
-      var temp = carLayer.setGeoJSON(data.results)._layers;
+    $.get("/pttp/cars/get_user_car/", function(data) {
+      var id = data.id;
+      data.properties["marker-symbol"] = "car";
+      data.properties["marker-size"] = "large";
+      data.properties["marker-color"] = "#fc4353";
+      var temp = carLayer.setGeoJSON(data)._layers;
       for (var prop in temp){
         var marker = temp[prop];
         break;
       }
+      console.log(temp);
       var fc = marker.getLatLng();
       callback([fc, id]);
     });
@@ -52,7 +51,7 @@ $( document ).ready(function() {
           'lng': position.coords.longitude,
           'csrfmiddlewaretoken': csrftoken,
         }
-        var post_url = "http://127.0.0.1:8000/pttp/cars/" + result[1] + "/update_current_location/";
+        var post_url = "/pttp/cars/" + result[1] + "/update_current_location/";
         $.post(post_url, post_data, function(response) {
         });
       });
@@ -62,25 +61,18 @@ $( document ).ready(function() {
 
 
   var getData = (function(callback) {
-    $.get("http://127.0.0.1:8000/powercars/?format=json", function(data) {
-      var id = null;
-      for(var i = 0; i < data.results.features.length; i++){
-        id = data.results.features[i].id;
-        data.results.features[i].properties["marker-symbol"] = "car";
-        data.results.features[i].properties["marker-size"] = "large";
-        data.results.features[i].properties["marker-color"] = "#fc4353";
-      }
-      var temp = carLayer.setGeoJSON(data.results)._layers;
+    $.get("/pttp/cars/get_user_car/", function(data) {
+      var id = data.id;
+      data.properties["marker-symbol"] = "car";
+      data.properties["marker-size"] = "large";
+      data.properties["marker-color"] = "#fc4353";
+      var temp = carLayer.setGeoJSON(data)._layers;
       for (var prop in temp){
         var marker = temp[prop];
         break;
       }
       var fc = marker.getLatLng();
       var soon_marker = marker.feature.properties.next_location;
-      soon_marker.properties = {
-        
-      }
-      console.log(soon_marker);
       var lat_second = soon_marker.coordinates[0];
       var lng_second = soon_marker.coordinates[1];
 
@@ -104,14 +96,14 @@ $( document ).ready(function() {
   });
 
   carLayer.on('click', function(e){
-    $.get("http://127.0.0.1:8000/pttp/popup/" + e.layer.feature.id + "/", function(data) {
+    $.get("/pttp/popup/" + e.layer.feature.id + "/", function(data) {
       e.layer.bindPopup(data);
       e.layer.openPopup();
     });
   });
 
   noteLayer.on('click', function(e){
-    $.get("http://127.0.0.1:8000/pttp/note_popup/" + e.layer.feature.id + "/", function(data) {
+    $.get("/pttp/note_popup/" + e.layer.feature.id + "/", function(data) {
       e.layer.bindPopup(data);
       e.layer.openPopup();
     });
@@ -135,7 +127,7 @@ $( document ).ready(function() {
   getLocation();
 
   (function worker() {
-    $.get("http://127.0.0.1:8000/helpnotes/?format=json", function(data) {
+    $.get("/helpnotes/?format=json", function(data) {
       var dataStorage = data;
       for(var i = 0; i < data.results.features.length; i++){
         data.results.features[i].properties["marker-symbol"] = "oil-well";
@@ -166,7 +158,7 @@ $( document ).ready(function() {
         'lng': loc.lng,
         'csrfmiddlewaretoken': csrftoken,
       }
-      var post_url = "http://127.0.0.1:8000/pttp/cars/" + result[3] + "/change_location/";
+      var post_url = "/pttp/cars/" + result[3] + "/change_location/";
       $.post(post_url, post_data, function(response) {
       });
     });
