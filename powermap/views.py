@@ -187,5 +187,11 @@ def get_user_car(request):
     user = User.objects.get(id=uid)
     car = PowerCar.objects.get(owner=user)
     serializer = PowerCarSerializer(car)
-    print type(serializer.data)
+    return JsonResponse(serializer.data)
+
+def get_other_cars(request):
+    uid = request.user.id
+    users = User.objects.exclude(id=uid)
+    cars = PowerCar.objects.filter(owner__in=users)
+    serializer = PowerCarSerializer(cars, many=True)
     return JsonResponse(serializer.data)

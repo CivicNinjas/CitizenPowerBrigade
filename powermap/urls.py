@@ -19,6 +19,11 @@ urlpatterns = [
     ),
     url(r'^cars/get_user_car/$', views.get_user_car, name='get_user_car'),
     url(
+        r'^cars/get_other_cars/$',
+        views.get_other_cars,
+        name='get_other_cars'
+    ),
+    url(
         r'^cars/(?P<car_id>[0-9]+)/update_current_location/$',
         views.update_current_location,
         name='update_current_location'
