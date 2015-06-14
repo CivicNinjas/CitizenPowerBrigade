@@ -28,6 +28,11 @@ urlpatterns = [
         views.update_current_location,
         name='update_current_location'
     ),
+    url(
+        r'^cars/(?P<car_id>[0-9]+)/set_active/$',
+        views.set_active,
+        name='set_active'
+    ),
     url(r'^logout/$', views.logout_view, name='logout'),
     url(r'^login_user/$', views.login_user, name='login_user')
 ]

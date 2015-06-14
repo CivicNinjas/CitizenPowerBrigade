@@ -229,3 +229,24 @@ def get_other_cars(request):
     queryset = PowerCar.objects.filter(owner__in=users)
     serializer = PowerCarSerializer(queryset, many=True)
     return JsonResponse(serializer.data)
+
+
+def set_active(request):
+    if request.method == "POST":
+        identified_user = get_object_or_404(User, pk=request.user.id)
+        user_car = get_object_or_404(PowerCar, owner=identified_user)
+        car_id = kwargs.get('car_id')
+        if user_car.id != int(car_id):
+            return HttpResponse(
+                json.dumps({"result": "Cars don't match"}),
+                content_type="application/json"
+            )
+        user_car.active = not user_car.active
+        user_car.save()
+        response_data['result'] = 'Change active successfully'
+        response_data['car_id'] = car_id
+
+        return HttpResponse(
+            json.dumps(response_data),
+            content_type="application/json"
+        )
