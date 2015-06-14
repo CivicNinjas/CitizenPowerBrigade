@@ -18,8 +18,6 @@ $( document ).ready(function() {
 
   var staticSecond = null;
 
-  var clusterGroup = new L.MarkerClusterGroup();
-
   var targetLine = L.polyline([]).addTo(map);
 
 
@@ -89,20 +87,13 @@ $( document ).ready(function() {
 
 
 
-
-  carLayer.on('click', function(e){
+  otherCars.on('click', function(e){
     $.get("/pttp/popup/" + e.layer.feature.id + "/", function(data) {
       e.layer.bindPopup(data);
       e.layer.openPopup();
     });
   });
 
-  noteLayer.on('click', function(e){
-    $.get("/pttp/note_popup/" + e.layer.feature.id + "/", function(data) {
-      e.layer.bindPopup(data);
-      e.layer.openPopup();
-    });
-  });
 
   var getLocation = (function() {
     if (navigator.geolocation) {

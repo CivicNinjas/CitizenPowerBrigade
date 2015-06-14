@@ -161,7 +161,7 @@ $( document ).ready(function() {
     });
   });
 
-  carLayer.on('click', function(e){
+  otherCars.on('click', function(e){
     $.get("/pttp/popup/" + e.layer.feature.id + "/", function(data) {
       e.layer.bindPopup(data);
       e.layer.openPopup();
