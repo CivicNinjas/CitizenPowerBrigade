@@ -1,13 +1,14 @@
 from powermap.forms import HelpNoteModelForm
 from powermap.models import PowerCar, HelpNote, Diagnostic, Inverter, GPS
 
-from django.contrib.auth import logout
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.gis.geos import Point
 from django.contrib.sessions.models import Session
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
+
 
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
@@ -148,7 +149,6 @@ def update_current_location(request, *args, **kwargs):
         user_car = get_object_or_404(PowerCar, owner=identified_user)
         response_data = {}
         car_id = kwargs.get('car_id')
-        print car_id
         if user_car.id != int(car_id):
             return HttpResponse(
                 json.dumps({"result": "Cars don't match"}),
@@ -183,15 +183,38 @@ def logout_view(request):
 
 def get_user_car(request):
     uid = request.user.id
-    print uid
     user = User.objects.get(id=uid)
     car = PowerCar.objects.get(owner=user)
     serializer = PowerCarSerializer(car)
     return JsonResponse(serializer.data)
 
+def login_user(request):
+    logout(request)
+    username = password = ''
+    if request.POST:
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                return redirect('index')
+    form = HelpNoteModelForm()
+    return render(request, 'powermap/login.html', {'form': form})
+
 def get_other_cars(request):
+    sessions = Session.objects.filter(expire_date__gte=timezone.now())
+    uid_list = []
+
+    # Build list of user IDs from session query.
+    for session in sessions:
+        data = session.get_decoded()
+        uid_list.append(data.get('_auth_user_id', None))
     uid = request.user.id
-    users = User.objects.exclude(id=uid)
-    cars = PowerCar.objects.filter(owner__in=users)
-    serializer = PowerCarSerializer(cars, many=True)
+    users = User.objects.filter(id__in=uid_list)
+    print users
+    users = [x for x in users if x.id != uid]
+    queryset = PowerCar.objects.filter(owner__in=users)
+    serializer = PowerCarSerializer(queryset, many=True)
     return JsonResponse(serializer.data)

@@ -28,5 +28,6 @@ urlpatterns = [
         views.update_current_location,
         name='update_current_location'
     ),
-    url(r'^logout/$', views.logout_view, name='logout')
+    url(r'^logout/$', views.logout_view, name='logout'),
+    url(r'^login_user/$', views.login_user, name='login_user')
 ]
