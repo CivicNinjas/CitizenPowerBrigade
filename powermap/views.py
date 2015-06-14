@@ -68,7 +68,7 @@ def create_note(request):
         if form.is_valid():
             form.save()
             return redirect('index')
-        return render(request, 'powermap/index.html', {'form': form})
+        return redirect('index')
 
 
 def index(request):
@@ -78,10 +78,19 @@ def index(request):
             form.save()
             form = HelpNoteModelForm()
             return redirect('index')
-        return render(request, 'powermap/index.html', {'form': form})
+    form = HelpNoteModelForm()
+    if request.user.is_authenticated():
+        return render(
+            request,
+            'powermap/index.html',
+            {"form": form, "authuser": True}
+        )
     else:
-        form = HelpNoteModelForm()
-        return render(request, 'powermap/index.html', {"form": form})
+        return render(
+            request,
+            'powermap/index.html',
+            {"form": form, "authuser": False}
+        )
 
 
 def popup(request, **kwargs):

@@ -1,5 +1,6 @@
 {% extends "powermap/base.html" %}
 {% load staticfiles %}
+{% load crispy_forms_tags %}
 {% block header %}
   <script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.9/mapbox.js'></script>
   <link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.9/mapbox.css' rel='stylesheet' />
@@ -12,13 +13,41 @@
 
 {% endblock %}
 {% block content %}
-  <div id='map'>
-  {% if user.is_authenticated %}
-    <nav class='menu-ui'>
-      {% csrf_token %}
-      <button type="button" class="btn btn-primary" id="change_next">Change Next Location</button>
-    </nav>
-  {% endif %}
+  <div class='container-fluid'>
+    <div id='map' class="col-xs-12">
+    {% if user.is_authenticated %}
+      <nav class='menu-ui'>
+        {% csrf_token %}
+        <button type="button" class="btn btn-primary" id="change_next">Change Next Location</button>
+      </nav>
+    {% endif %}
+    </div>
   </div>
-  <script src="{% static 'powermap/index.js' %}"></script>
+  {% if authuser %}
+    <script src="{% static 'powermap/index.js' %}"></script>
+  {% else %}
+    <script src="{% static 'powermap/public_index.js' %}"></script>
+  {% endif %}
+{% endblock %}
+
+{% block navbar_content %}
+{% endblock %}
+
+{% block modal %}
+<div class="modal fade" id="myModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Post a note about your situation</h4>
+      </div>
+      <div class="modal-body">
+        {% crispy form %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 {% endblock %}
