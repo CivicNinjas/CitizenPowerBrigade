@@ -197,6 +197,7 @@ def get_user_car(request):
     serializer = PowerCarSerializer(car)
     return JsonResponse(serializer.data)
 
+
 def login_user(request):
     logout(request)
     username = password = ''
@@ -211,6 +212,7 @@ def login_user(request):
                 return redirect('index')
     form = HelpNoteModelForm()
     return render(request, 'powermap/login.html', {'form': form})
+
 
 def get_other_cars(request):
     sessions = Session.objects.filter(expire_date__gte=timezone.now())
