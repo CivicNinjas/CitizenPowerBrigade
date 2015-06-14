@@ -12,6 +12,7 @@ class PowerCar(models.Model):
     current_location = models.PointField(help_text="Current location")
     target_location = models.PointField()
     next_location = models.PointField()
+    active = models.BooleanField(default=False)
     owner = models.ForeignKey(User, null=True)
     objects = models.GeoManager()
 
