@@ -31,7 +31,7 @@ $( document ).ready(function() {
       var id = data.id;
       data.properties["marker-symbol"] = "car";
       data.properties["marker-size"] = "large";
-      data.properties["marker-color"] = "#bad696";
+      data.properties["marker-color"] = "#0044ff";
       var temp = carLayer.setGeoJSON(data)._layers;
       for (var prop in temp){
         var marker = temp[prop];
@@ -102,7 +102,7 @@ $( document ).ready(function() {
       temp = L.polyline(newlatlngs, {color: '#abf696', opacity: "0.8"}).addTo(otherCars);
     }
   });
-  setTimeout(updateOtherCars, 10000);
+  setTimeout(updateOtherCars, 5000);
 })();
 
 
@@ -121,7 +121,7 @@ $( document ).ready(function() {
         });
       });
     });
-    setTimeout(workerTwo, 15000);
+    setTimeout(workerTwo, 5000);
   })();
 
 
