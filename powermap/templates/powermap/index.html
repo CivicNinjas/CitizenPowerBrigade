@@ -13,16 +13,17 @@
 
 {% endblock %}
 {% block content %}
-  <div class='container-fluid'>
     <div id='map' class="col-xs-12">
     {% if user.is_authenticated %}
       <nav class='menu-ui'>
         {% csrf_token %}
-        <button type="button" class="btn btn-primary" id="change_next">Change Next Location</button>
+        <div class="btn-group-vertical" role="group" aria-label="...">
+          <button type="button" class="btn btn-primary" id="change_next">Change Next Location</button>
+          <button type="button" class="btn btn-primary" id="set_active">Set Active</button>
+        </div>
       </nav>
     {% endif %}
     </div>
-  </div>
   {% if authuser %}
     <script src="{% static 'powermap/index.js' %}"></script>
   {% else %}
