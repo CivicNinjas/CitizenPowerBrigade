@@ -12,6 +12,8 @@ $( document ).ready(function() {
 
   var otherCars = L.mapbox.featureLayer().addTo(map);
 
+  var otherCarMarkers = L.mapbox.featureLayer().addTo(map);
+
   var noteLayer = L.mapbox.featureLayer();
 
   var lineStringMarker = L.mapbox.featureLayer().addTo(map);
@@ -24,7 +26,25 @@ $( document ).ready(function() {
 
   var targetLine = L.polyline([]).addTo(map);
 
+  var currentPopup = {id: null, type: null, popup: null};
 
+  var currentPopupType = null;
+
+  map.on('popupopen', function(e) {
+    if (e.popup._source.feature.properties["marker-symbol"] == "car") {
+      currentPopup.type = "PowerCar";
+    } else if (e.popup._source.feature.properties["marker-symbol"] == "oil-well") {
+      currentPopup.type = "HelpNote";
+    };
+    currentPopup.id = e.popup._source.feature.id;
+    currentPopup.popup = e.popup;
+  });
+
+  map.on('popupclose', function(e) {
+    currentPopup.type = null;
+    currentPopup.id = null;
+    currentPopup.popup = null;
+  });
 
   var updateCar = (function(callback) {
     $.get("/pttp/cars/get_user_car/", function(data) {
@@ -55,8 +75,8 @@ $( document ).ready(function() {
         feat = data.features[i];
         start_lat_lng = new L.LatLng(feat.geometry.coordinates[1], feat.geometry.coordinates[0]);
         end_lat_lng = new L.LatLng(
-            feat.properties.next_location.coordinates[1],
-            feat.properties.next_location.coordinates[0]
+          feat.properties.next_location.coordinates[1],
+          feat.properties.next_location.coordinates[0]
         );
         var marksTheSpot = L.marker(end_lat_lng, {
           icon: L.mapbox.marker.icon({
@@ -65,26 +85,36 @@ $( document ).ready(function() {
             'marker-color': '#bbf696'
           }),
         });
-        marksTheSpot.addTo(otherCars);
+        marksTheSpot.addTo(otherCarMarkers);
         newlatlngs = [start_lat_lng, end_lat_lng]
-        temp = L.polyline(newlatlngs, {color: '#abf696', opacity: "0.8"}).addTo(otherCars);
+        temp = L.polyline(newlatlngs, {color: '#abf696', opacity: "0.8"}).addTo(otherCarMarkers);
       }
     });
   });
 
 (function updateOtherCars() {
-  otherCars.setGeoJSON([]);
+  var carToPopup = null;
+  var tempPopup = null;
+  var markerToPopup = null;
   $.get("/pttp/cars/get_other_cars/", function(data) {
     for(var i = 0; i < data.features.length; i++){
       feat = data.features[i];
       feat.properties["marker-symbol"] = "car";
       feat.properties["marker-size"] = "large";
       feat.properties["marker-color"] = "#bbf696";
-    }
+      if (currentPopup.type == "PowerCar" && currentPopup.id == feat.id) {
+        carToPopup = feat.id;
+        tempPopup = currentPopup.popup;
+      };
+    };
     otherCars.setGeoJSON([]);
+    otherCarMarkers.setGeoJSON([]);
     otherCars.setGeoJSON(data)._layers;
     for(var i = 0; i < data.features.length; i++){
       feat = data.features[i];
+      if (feat.id == carToPopup){
+        markerToPopup = feat;
+      };
       start_lat_lng = new L.LatLng(feat.geometry.coordinates[1], feat.geometry.coordinates[0]);
       end_lat_lng = new L.LatLng(
           feat.properties.next_location.coordinates[1],
@@ -97,9 +127,19 @@ $( document ).ready(function() {
           'marker-color': '#bbf696'
         }),
       });
-      marksTheSpot.addTo(otherCars);
+      marksTheSpot.addTo(otherCarMarkers);
       newlatlngs = [start_lat_lng, end_lat_lng]
-      temp = L.polyline(newlatlngs, {color: '#abf696', opacity: "0.8"}).addTo(otherCars);
+      temp = L.polyline(newlatlngs, {color: '#abf696', opacity: "0.8"}).addTo(otherCarMarkers);
+    }
+    if (markerToPopup != null){
+      otherCars.bindPopup(tempPopup);
+      otherCars.openPopup();
+      /*
+      $.get("/pttp/popup/" + markerToPopup.id + "/", function(data) {
+        otherCars.bindPopup(data);
+        otherCars.openPopup();
+      });
+      */
     }
   });
   setTimeout(updateOtherCars, 5000);
@@ -156,16 +196,17 @@ $( document ).ready(function() {
       var c = secondMarker.getLatLng();
       var latlngs = [fc, c]
       var targetLine = L.polyline(latlngs, {color: 'blue'}).addTo(map);
-      console.log(targetLine);
       callback([fc, secondMarker, targetLine, id]);
     });
   });
 
   otherCars.on('click', function(e){
-    $.get("/pttp/popup/" + e.layer.feature.id + "/", function(data) {
-      e.layer.bindPopup(data);
-      e.layer.openPopup();
-    });
+    if (e.layer.feature != null) {
+      $.get("/pttp/popup/" + e.layer.feature.id + "/", function(data) {
+        e.layer.bindPopup(data);
+        e.layer.openPopup();
+      });
+    }
   });
 
   noteLayer.on('click', function(e){
@@ -228,6 +269,17 @@ $( document ).ready(function() {
       $.post(post_url, post_data, function(response) {
       });
     });
+
+    $('#set_active').click(function() {
+      var csrftoken = $.cookie('csrftoken');
+      var post_data = {
+        'csrfmiddlewaretoken': csrftoken
+      }
+      var post_url = "/pttp/cars/" + result[3] + "/set_active/";
+      $.post(post_url, post_data, function(response) {
+      });
+    });
+
   });
 
   getOtherCars();
