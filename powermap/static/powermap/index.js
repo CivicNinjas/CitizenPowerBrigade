@@ -180,12 +180,6 @@ $( document ).ready(function() {
         if (noteToPopup != null){
           layers.noteLayer.bindPopup(tempPopup);
           layers.noteLayer.openPopup();
-          /*
-          $.get("/pttp/popup/" + markerToPopup.id + "/", function(data) {
-            otherCars.bindPopup(data);
-            otherCars.openPopup();
-          });
-          */
         };
         setTimeout(updateNotes, 6000);
       });
@@ -298,13 +292,7 @@ $( document ).ready(function() {
         if (markerToPopup != null){
           layers.otherCars.bindPopup(tempPopup);
           layers.otherCars.openPopup();
-          /*
-          $.get("/pttp/popup/" + markerToPopup.id + "/", function(data) {
-            otherCars.bindPopup(data);
-            otherCars.openPopup();
-          });
-          */
-        }
+        };
       });
       setTimeout(updateOtherCars, 5000);
     })();
