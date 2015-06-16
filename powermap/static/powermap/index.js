@@ -1,288 +1,299 @@
 $( document ).ready(function() {
-  // Provide your access token
-  L.mapbox.accessToken = 'pk.eyJ1IjoiaGFyYmllaXNtIiwiYSI6IksyU1Rkc0UifQ.eXciAIxM0pfdj5STBHNnbQ';
-  // Create a map in the div #map
-  var map = L.mapbox.map('map', 'harbieism.mbb67n8i');
 
-  map.addControl(L.mapbox.geocoderControl('mapbox.places', {
-    autocomplete: true
-  }));
+  module = function() {
+    L.mapbox.accessToken = 'pk.eyJ1IjoiaGFyYmllaXNtIiwiYSI6IksyU1Rkc0UifQ.eXciAIxM0pfdj5STBHNnbQ';
 
-  var carLayer = L.mapbox.featureLayer().addTo(map);
+    var map = L.mapbox.map('map', 'harbieism.mbb67n8i');
 
-  var otherCars = L.mapbox.featureLayer().addTo(map);
+    map.addControl(L.mapbox.geocoderControl('mapbox.places', {
+      autocomplete: true
+    }));
 
-  var otherCarMarkers = L.mapbox.featureLayer().addTo(map);
-
-  var noteLayer = L.mapbox.featureLayer();
-
-  var lineStringMarker = L.mapbox.featureLayer().addTo(map);
-
-  var secondMarker = null;
-
-  var staticSecond = null;
-
-  var clusterGroup = new L.MarkerClusterGroup();
-
-  var targetLine = L.polyline([]).addTo(map);
-
-  var currentPopup = {id: null, type: null, popup: null};
-
-  var currentPopupType = null;
-
-  map.on('popupopen', function(e) {
-    if (e.popup._source.feature.properties["marker-symbol"] == "car") {
-      currentPopup.type = "PowerCar";
-    } else if (e.popup._source.feature.properties["marker-symbol"] == "oil-well") {
-      currentPopup.type = "HelpNote";
+    var layers = {
+      carLayer: L.mapbox.featureLayer().addTo(map),
+      otherCars: L.mapbox.featureLayer().addTo(map),
+      otherCarMarkers: L.mapbox.featureLayer().addTo(map),
+      noteLayer: L.mapbox.featureLayer(),
+      secondMarker: null,
+      clusterGroup: new L.MarkerClusterGroup(),
+      targetLine: L.polyline([]),
+      currentPopup: {
+        id: null,
+        type: null,
+        popup: null
+      },
+      currentPopupType: null
     };
-    currentPopup.id = e.popup._source.feature.id;
-    currentPopup.popup = e.popup;
-  });
 
-  map.on('popupclose', function(e) {
-    currentPopup.type = null;
-    currentPopup.id = null;
-    currentPopup.popup = null;
-  });
-
-  var updateCar = (function(callback) {
-    $.get("/pttp/cars/get_user_car/", function(data) {
-      var id = data.id;
-      data.properties["marker-symbol"] = "car";
-      data.properties["marker-size"] = "large";
-      data.properties["marker-color"] = "#0044ff";
-      var temp = carLayer.setGeoJSON(data)._layers;
-      for (var prop in temp){
-        var marker = temp[prop];
-        break;
-      }
-      var fc = marker.getLatLng();
-      callback([fc, id]);
+    map.on('popupopen', function(e) {
+      if (e.popup._source.feature.properties["marker-symbol"] == "car") {
+        layers.currentPopup.type = "PowerCar";
+      } else if (e.popup._source.feature.properties["marker-symbol"] == "oil-well") {
+        layers.currentPopup.type = "HelpNote";
+      };
+      layers.currentPopup.id = e.popup._source.feature.id;
+      layers.currentPopup.popup = e.popup;
     });
-  });
 
-  var getOtherCars = (function() {
-    $.get("/pttp/cars/get_other_cars/", function(data) {
-      for(var i = 0; i < data.features.length; i++){
-        feat = data.features[i];
-        feat.properties["marker-symbol"] = "car";
-        feat.properties["marker-size"] = "large";
-        feat.properties["marker-color"] = "#bbf696";
-      }
-      otherCars.setGeoJSON(data)._layers;
-      for(var i = 0; i < data.features.length; i++){
-        feat = data.features[i];
-        start_lat_lng = new L.LatLng(feat.geometry.coordinates[1], feat.geometry.coordinates[0]);
-        end_lat_lng = new L.LatLng(
-          feat.properties.next_location.coordinates[1],
-          feat.properties.next_location.coordinates[0]
-        );
-        var marksTheSpot = L.marker(end_lat_lng, {
-          icon: L.mapbox.marker.icon({
-            'marker-symbol': 'cross',
-            'marker-size': 'medium',
-            'marker-color': '#bbf696'
-          }),
+    map.on('popupclose', function(e) {
+      layers.currentPopup.type = null;
+      layers.currentPopup.id = null;
+      layers.currentPopup.popup = null;
+    });
+
+    layers.otherCars.on('click', function(e){
+      if (e.layer.feature != null) {
+        $.get("/pttp/popup/" + e.layer.feature.id + "/", function(data) {
+          e.layer.bindPopup(data);
+          e.layer.openPopup();
         });
-        marksTheSpot.addTo(otherCarMarkers);
-        newlatlngs = [start_lat_lng, end_lat_lng]
-        temp = L.polyline(newlatlngs, {color: '#abf696', opacity: "0.8"}).addTo(otherCarMarkers);
       }
     });
-  });
 
-(function updateOtherCars() {
-  var carToPopup = null;
-  var tempPopup = null;
-  var markerToPopup = null;
-  $.get("/pttp/cars/get_other_cars/", function(data) {
-    for(var i = 0; i < data.features.length; i++){
-      feat = data.features[i];
-      feat.properties["marker-symbol"] = "car";
-      feat.properties["marker-size"] = "large";
-      feat.properties["marker-color"] = "#bbf696";
-      if (currentPopup.type == "PowerCar" && currentPopup.id == feat.id) {
-        carToPopup = feat.id;
-        tempPopup = currentPopup.popup;
-      };
-    };
-    otherCars.setGeoJSON([]);
-    otherCarMarkers.setGeoJSON([]);
-    otherCars.setGeoJSON(data)._layers;
-    for(var i = 0; i < data.features.length; i++){
-      feat = data.features[i];
-      if (feat.id == carToPopup){
-        markerToPopup = feat;
-      };
-      start_lat_lng = new L.LatLng(feat.geometry.coordinates[1], feat.geometry.coordinates[0]);
-      end_lat_lng = new L.LatLng(
-          feat.properties.next_location.coordinates[1],
-          feat.properties.next_location.coordinates[0]
-      );
-      var marksTheSpot = L.marker(end_lat_lng, {
-        icon: L.mapbox.marker.icon({
-          'marker-symbol': 'cross',
-          'marker-size': 'medium',
-          'marker-color': '#bbf696'
-        }),
+    layers.noteLayer.on('click', function(e){
+      $.get("/pttp/note_popup/" + e.layer.feature.id + "/", function(data) {
+        e.layer.bindPopup(data);
+        e.layer.openPopup();
       });
-      marksTheSpot.addTo(otherCarMarkers);
-      newlatlngs = [start_lat_lng, end_lat_lng]
-      temp = L.polyline(newlatlngs, {color: '#abf696', opacity: "0.8"}).addTo(otherCarMarkers);
-    }
-    if (markerToPopup != null){
-      otherCars.bindPopup(tempPopup);
-      otherCars.openPopup();
-      /*
-      $.get("/pttp/popup/" + markerToPopup.id + "/", function(data) {
-        otherCars.bindPopup(data);
-        otherCars.openPopup();
+    });
+
+    var getLocation = (function() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(setLocation);
+      } else {
+        console.log("Geolocation is not supported by this browser.");
+      };
+    });
+
+    var setLocation = (function(position) {
+      point_string = "POINT(" + position.coords.longitude + " " + position.coords.latitude +")";
+      $("#id_location").val(point_string);
+      map.setView([position.coords.latitude, position.coords.longitude], 10);
+    });
+
+    var getData = (function(callback) {
+      $.get("/pttp/cars/get_user_car/", function(data) {
+        var id = data.id;
+        data.properties["marker-symbol"] = "car";
+        data.properties["marker-size"] = "large";
+        data.properties["marker-color"] = "#0044ff";
+        var temp = layers.carLayer.setGeoJSON(data)._layers;
+        for (var prop in temp){
+          var marker = temp[prop];
+          break;
+        }
+        var fc = marker.getLatLng();
+        console.log(fc);
+        var soon_marker = marker.feature.properties.next_location;
+        var lat_second = soon_marker.coordinates[0];
+        var lng_second = soon_marker.coordinates[1];
+
+        layers.secondMarker = L.marker(new L.LatLng(lng_second, lat_second), {
+          icon: L.mapbox.marker.icon({
+            'marker-symbol': 'marker-stroked',
+            'marker-size': 'large',
+            'marker-color': '#0044ff'
+          }),
+          draggable: true,
+          zIndexOffset: 1000
+        });
+        layers.secondMarker.addTo(map);
+
+        layers.secondMarker.options.zIndexOffset = 1000;
+        var c = layers.secondMarker.getLatLng();
+        var latlngs = [fc, c]
+        layers.targetLine = L.polyline(latlngs, {color: 'blue'}).addTo(map);
+        callbackObject = {
+            fc: fc,
+            secondMarker: layers.secondMarker,
+            targetLine: layers.targetLine,
+            id: id
+        };
+        callback(callbackObject);
       });
-      */
-    }
-  });
-  setTimeout(updateOtherCars, 5000);
-})();
+    });
 
+    var getDataCallback = (function(result) {
+      layers.secondMarker.on('drag', function(e){
+        var loc = layers.secondMarker.getLatLng();
+        layers.targetLine.spliceLatLngs(1, 1, loc);
+      });
 
-  (function workerTwo() {
-    updateCar(function(result) {
-      targetLine.spliceLatLngs(0, 1, result[0]);
-      navigator.geolocation.getCurrentPosition(function(position) {
+      $('#change_next').click(function() {
         var csrftoken = $.cookie('csrftoken');
+        var loc = layers.secondMarker.getLatLng();
         var post_data = {
-          'lat': position.coords.latitude,
-          'lng': position.coords.longitude,
+          'lat': loc.lat,
+          'lng': loc.lng,
           'csrfmiddlewaretoken': csrftoken,
         }
-        var post_url = "/pttp/cars/" + result[1] + "/update_current_location/";
+        var post_url = "/pttp/cars/" + result.id + "/change_location/";
+        $.post(post_url, post_data, function(response) {
+        });
+      });
+
+      $('#set_active').click(function() {
+        var csrftoken = $.cookie('csrftoken');
+        var post_data = {
+          'csrfmiddlewaretoken': csrftoken
+        }
+        var post_url = "/pttp/cars/" + result.id + "/set_active/";
         $.post(post_url, post_data, function(response) {
         });
       });
     });
-    setTimeout(workerTwo, 5000);
-  })();
 
 
-  var getData = (function(callback) {
-    $.get("/pttp/cars/get_user_car/", function(data) {
-      var id = data.id;
-      data.properties["marker-symbol"] = "car";
-      data.properties["marker-size"] = "large";
-      data.properties["marker-color"] = "#0044ff";
-      var temp = carLayer.setGeoJSON(data)._layers;
-      for (var prop in temp){
-        var marker = temp[prop];
-        break;
-      }
-      var fc = marker.getLatLng();
-      var soon_marker = marker.feature.properties.next_location;
-      var lat_second = soon_marker.coordinates[0];
-      var lng_second = soon_marker.coordinates[1];
+    var notes = (function updateNotes() {
+     $.get("/helpnotes/?format=json", function(data) {
+       for(var i = 0; i < data.results.features.length; i++){
+         data.results.features[i].properties["marker-symbol"] = "oil-well";
+         data.results.features[i].properties["marker-size"] = "large";
+         data.results.features[i].properties["marker-color"] = "#fc4353";
+       }
+       layers.noteLayer.setGeoJSON([]);
+       layers.noteLayer.setGeoJSON(data.results);
+       layers.clusterGroup.clearLayers(layers.noteLayer);
+       layers.clusterGroup.addLayer(layers.noteLayer);
+       map.addLayer(layers.clusterGroup);
+       setTimeout(updateNotes, 6000);
+     });
+   });
 
-      var secondMarker = L.marker(new L.LatLng(lng_second, lat_second), {
-        icon: L.mapbox.marker.icon({
-          'marker-symbol': 'marker-stroked',
-          'marker-size': 'large',
-          'marker-color': '#0044ff'
-        }),
-        draggable: true,
-        zIndexOffset: 1000
-      });
-      secondMarker.addTo(map);
-
-      secondMarker.options.zIndexOffset = 1000;
-      var c = secondMarker.getLatLng();
-      var latlngs = [fc, c]
-      var targetLine = L.polyline(latlngs, {color: 'blue'}).addTo(map);
-      callback([fc, secondMarker, targetLine, id]);
-    });
-  });
-
-  otherCars.on('click', function(e){
-    if (e.layer.feature != null) {
-      $.get("/pttp/popup/" + e.layer.feature.id + "/", function(data) {
-        e.layer.bindPopup(data);
-        e.layer.openPopup();
-      });
-    }
-  });
-
-  noteLayer.on('click', function(e){
-    $.get("/pttp/note_popup/" + e.layer.feature.id + "/", function(data) {
-      e.layer.bindPopup(data);
-      e.layer.openPopup();
-    });
-  });
-
-  var getLocation = (function() {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(setLocation);
-    } else {
-      console.log("Geolocation is not supported by this browser.");
-    }
-  });
-
-  var setLocation = (function(position) {
-    point_string = "POINT(" + position.coords.longitude + " " + position.coords.latitude +")";
-    $("#id_location").val(point_string);
-    map.setView([position.coords.latitude, position.coords.longitude], 10);
-  });
-
-
-  getLocation();
-
-  (function worker() {
-    $.get("/helpnotes/?format=json", function(data) {
-      var dataStorage = data;
-      for(var i = 0; i < data.results.features.length; i++){
-        data.results.features[i].properties["marker-symbol"] = "oil-well";
-        data.results.features[i].properties["marker-size"] = "large";
-        data.results.features[i].properties["marker-color"] = "#fc4353";
-      }
-      noteLayer.setGeoJSON([]);
-      noteLayer.setGeoJSON(data.results);
-      clusterGroup.clearLayers(noteLayer);
-      clusterGroup.addLayer(noteLayer);
-      map.addLayer(clusterGroup);
-      setTimeout(worker, 60000);
-    });
-  })();
-
-  getData(function(result) {
-    targetLine = result[2];
-    result[1].on('drag', function(e){
-      var loc = result[1].getLatLng();
-      targetLine.spliceLatLngs(1, 1, loc);
-    });
-
-    $('#change_next').click(function() {
-      var csrftoken = $.cookie('csrftoken');
-      var loc = result[1].getLatLng();
-      var post_data = {
-        'lat': loc.lat,
-        'lng': loc.lng,
-        'csrfmiddlewaretoken': csrftoken,
-      }
-      var post_url = "/pttp/cars/" + result[3] + "/change_location/";
-      $.post(post_url, post_data, function(response) {
+    var updateCar = (function(callback) {
+      $.get("/pttp/cars/get_user_car/", function(data) {
+        var id = data.id;
+        data.properties["marker-symbol"] = "car";
+        data.properties["marker-size"] = "large";
+        data.properties["marker-color"] = "#0044ff";
+        var temp = layers.carLayer.setGeoJSON(data)._layers;
+        for (var prop in temp){
+          var marker = temp[prop];
+          break;
+        }
+        var fc = marker.getLatLng();
+        callbackObject = {
+            fc: fc,
+            id: id
+        }
+        callback(callbackObject);
       });
     });
 
-    $('#set_active').click(function() {
-      var csrftoken = $.cookie('csrftoken');
-      var post_data = {
-        'csrfmiddlewaretoken': csrftoken
-      }
-      var post_url = "/pttp/cars/" + result[3] + "/set_active/";
-      $.post(post_url, post_data, function(response) {
+    (function workerTwo() {
+      updateCar(function(result) {
+        layers.targetLine.spliceLatLngs(0, 1, result.fc);
+        navigator.geolocation.getCurrentPosition(function(position) {
+          var csrftoken = $.cookie('csrftoken');
+          var post_data = {
+            'lat': position.coords.latitude,
+            'lng': position.coords.longitude,
+            'csrfmiddlewaretoken': csrftoken,
+          }
+          var post_url = "/pttp/cars/" + result.id + "/update_current_location/";
+          $.post(post_url, post_data, function(response) {
+          });
+        });
+      });
+      setTimeout(workerTwo, 5000);
+    })();
+
+    var getOtherCars = (function() {
+      $.get("/pttp/cars/get_other_cars/", function(data) {
+        for(var i = 0; i < data.features.length; i++){
+          feat = data.features[i];
+          feat.properties["marker-symbol"] = "car";
+          feat.properties["marker-size"] = "large";
+          feat.properties["marker-color"] = "#bbf696";
+        }
+        layers.otherCars.setGeoJSON(data)._layers;
+        for(var i = 0; i < data.features.length; i++){
+          feat = data.features[i];
+          start_lat_lng = new L.LatLng(feat.geometry.coordinates[1], feat.geometry.coordinates[0]);
+          end_lat_lng = new L.LatLng(
+            feat.properties.next_location.coordinates[1],
+            feat.properties.next_location.coordinates[0]
+          );
+          var marksTheSpot = L.marker(end_lat_lng, {
+            icon: L.mapbox.marker.icon({
+              'marker-symbol': 'cross',
+              'marker-size': 'medium',
+              'marker-color': '#bbf696'
+            }),
+          });
+          marksTheSpot.addTo(layers.otherCarMarkers);
+          newlatlngs = [start_lat_lng, end_lat_lng]
+          temp = L.polyline(newlatlngs, {color: '#abf696', opacity: "0.8"}).addTo(layers.otherCarMarkers);
+        }
       });
     });
 
-  });
+    (function updateOtherCars() {
+      var carToPopup = null;
+      var tempPopup = null;
+      var markerToPopup = null;
+      $.get("/pttp/cars/get_other_cars/", function(data) {
+        for(var i = 0; i < data.features.length; i++){
+          feat = data.features[i];
+          feat.properties["marker-symbol"] = "car";
+          feat.properties["marker-size"] = "large";
+          feat.properties["marker-color"] = "#bbf696";
+          if (layers.currentPopup.type == "PowerCar" && layers.currentPopup.id == feat.id) {
+            carToPopup = feat.id;
+            tempPopup = layers.currentPopup.popup;
+          };
+        };
+        layers.otherCars.setGeoJSON([]);
+        layers.otherCarMarkers.setGeoJSON([]);
+        layers.otherCars.setGeoJSON(data)._layers;
+        for(var i = 0; i < data.features.length; i++){
+          feat = data.features[i];
+          if (feat.id == carToPopup){
+            markerToPopup = feat;
+          };
+          start_lat_lng = new L.LatLng(feat.geometry.coordinates[1], feat.geometry.coordinates[0]);
+          end_lat_lng = new L.LatLng(
+              feat.properties.next_location.coordinates[1],
+              feat.properties.next_location.coordinates[0]
+          );
+          var marksTheSpot = L.marker(end_lat_lng, {
+            icon: L.mapbox.marker.icon({
+              'marker-symbol': 'cross',
+              'marker-size': 'medium',
+              'marker-color': '#bbf696'
+            }),
+          });
+          marksTheSpot.addTo(layers.otherCarMarkers);
+          newlatlngs = [start_lat_lng, end_lat_lng]
+          temp = L.polyline(newlatlngs, {color: '#abf696', opacity: "0.8"}).addTo(layers.otherCarMarkers);
+        }
+        if (markerToPopup != null){
+          layers.otherCars.bindPopup(tempPopup);
+          layers.otherCars.openPopup();
+          /*
+          $.get("/pttp/popup/" + markerToPopup.id + "/", function(data) {
+            otherCars.bindPopup(data);
+            otherCars.openPopup();
+          });
+          */
+        }
+      });
+      setTimeout(updateOtherCars, 5000);
+    })();
 
-  getOtherCars();
+    return {
+        getLocation: getLocation, 
+        getOtherCars: getOtherCars,
+        updateNotes: notes,
+        getData: getData,
+        getDataCallback: getDataCallback
+    };
 
+  }();
+
+  module.getLocation();
+  module.getOtherCars();
+  module.updateNotes();
+  module.getData(module.getDataCallback);
 
 });
