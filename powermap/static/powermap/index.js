@@ -14,6 +14,8 @@ $( document ).ready(function() {
       otherCars: L.mapbox.featureLayer().addTo(map),
       otherCarMarkers: L.mapbox.featureLayer().addTo(map),
       noteLayer: L.mapbox.featureLayer(),
+      staticNext: null,
+      staticNextLine: L.polyline([]),
       secondMarker: null,
       clusterGroup: new L.MarkerClusterGroup(),
       targetLine: L.polyline([]),
@@ -99,10 +101,21 @@ $( document ).ready(function() {
         });
         layers.secondMarker.addTo(map);
 
+        layers.staticNext = L.marker(new L.LatLng(lng_second, lat_second), {
+          icon: L.mapbox.marker.icon({
+            'marker-symbol': 'cross',
+            'marker-size': 'medium',
+            'marker-color': '#b8b8b8'
+          }),
+          zIndexOffset: 999
+        });
+        layers.staticNext.addTo(map);
+
         layers.secondMarker.options.zIndexOffset = 1000;
         var c = layers.secondMarker.getLatLng();
         var latlngs = [fc, c]
         layers.targetLine = L.polyline(latlngs, {color: 'blue'}).addTo(map);
+        layers.staticNextLine = L.polyline(latlngs, {color: 'grey'}).addTo(map);
         callbackObject = {
             fc: fc,
             secondMarker: layers.secondMarker,
@@ -122,6 +135,8 @@ $( document ).ready(function() {
       $('#change_next').click(function() {
         var csrftoken = $.cookie('csrftoken');
         var loc = layers.secondMarker.getLatLng();
+        layers.staticNextLine.spliceLatLngs(1, 1, loc);
+
         var post_data = {
           'lat': loc.lat,
           'lng': loc.lng,
@@ -144,21 +159,37 @@ $( document ).ready(function() {
     });
 
 
-    var notes = (function updateNotes() {
-     $.get("/helpnotes/?format=json", function(data) {
-       for(var i = 0; i < data.results.features.length; i++){
-         data.results.features[i].properties["marker-symbol"] = "oil-well";
-         data.results.features[i].properties["marker-size"] = "large";
-         data.results.features[i].properties["marker-color"] = "#fc4353";
-       }
-       layers.noteLayer.setGeoJSON([]);
-       layers.noteLayer.setGeoJSON(data.results);
-       layers.clusterGroup.clearLayers(layers.noteLayer);
-       layers.clusterGroup.addLayer(layers.noteLayer);
-       map.addLayer(layers.clusterGroup);
-       setTimeout(updateNotes, 6000);
-     });
-   });
+    (function updateNotes() {
+      var noteToPopup = null;
+      $.get("/helpnotes/?format=json", function(data) {
+        for(var i = 0; i < data.results.features.length; i++){
+          feat = data.results.features[i];
+          feat.properties["marker-symbol"] = "oil-well";
+          feat.properties["marker-size"] = "large";
+          feat.properties["marker-color"] = "#fc4353";
+          if (layers.currentPopup.type == "HelpNote" && layers.currentPopup.id == feat.id) {
+            noteToPopup = feat;
+            tempPopup = layers.currentPopup.popup;
+          };
+        };
+        layers.noteLayer.setGeoJSON([]);
+        layers.noteLayer.setGeoJSON(data.results);
+        layers.clusterGroup.clearLayers(layers.noteLayer);
+        layers.clusterGroup.addLayer(layers.noteLayer);
+        map.addLayer(layers.clusterGroup);
+        if (noteToPopup != null){
+          layers.noteLayer.bindPopup(tempPopup);
+          layers.noteLayer.openPopup();
+          /*
+          $.get("/pttp/popup/" + markerToPopup.id + "/", function(data) {
+            otherCars.bindPopup(data);
+            otherCars.openPopup();
+          });
+          */
+        };
+        setTimeout(updateNotes, 6000);
+      });
+   })();
 
     var updateCar = (function(callback) {
       $.get("/pttp/cars/get_user_car/", function(data) {
@@ -205,7 +236,7 @@ $( document ).ready(function() {
           feat.properties["marker-symbol"] = "car";
           feat.properties["marker-size"] = "large";
           feat.properties["marker-color"] = "#bbf696";
-        }
+        };
         layers.otherCars.setGeoJSON(data)._layers;
         for(var i = 0; i < data.features.length; i++){
           feat = data.features[i];
@@ -229,7 +260,6 @@ $( document ).ready(function() {
     });
 
     (function updateOtherCars() {
-      var carToPopup = null;
       var tempPopup = null;
       var markerToPopup = null;
       $.get("/pttp/cars/get_other_cars/", function(data) {
@@ -239,18 +269,16 @@ $( document ).ready(function() {
           feat.properties["marker-size"] = "large";
           feat.properties["marker-color"] = "#bbf696";
           if (layers.currentPopup.type == "PowerCar" && layers.currentPopup.id == feat.id) {
-            carToPopup = feat.id;
+            markerToPopup = feat;
             tempPopup = layers.currentPopup.popup;
           };
+
         };
         layers.otherCars.setGeoJSON([]);
         layers.otherCarMarkers.setGeoJSON([]);
         layers.otherCars.setGeoJSON(data)._layers;
         for(var i = 0; i < data.features.length; i++){
           feat = data.features[i];
-          if (feat.id == carToPopup){
-            markerToPopup = feat;
-          };
           start_lat_lng = new L.LatLng(feat.geometry.coordinates[1], feat.geometry.coordinates[0]);
           end_lat_lng = new L.LatLng(
               feat.properties.next_location.coordinates[1],
@@ -284,7 +312,6 @@ $( document ).ready(function() {
     return {
         getLocation: getLocation, 
         getOtherCars: getOtherCars,
-        updateNotes: notes,
         getData: getData,
         getDataCallback: getDataCallback
     };
@@ -293,7 +320,6 @@ $( document ).ready(function() {
 
   module.getLocation();
   module.getOtherCars();
-  module.updateNotes();
   module.getData(module.getDataCallback);
 
 });
