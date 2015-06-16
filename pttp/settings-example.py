@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/dev/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'e1b@h_a4o9rdgf!f-&t+wv0w2%n8yb^%sey&*zkac3&_9k#j67'
+SECRET_KEY = '4$d&s7dx@sw$08nxiu@$74q+!*7mtq14v^de(8%ylm)jdb%0ho'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -54,6 +54,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware'
 ]
 
+
 ROOT_URLCONF = 'pttp.urls'
 
 TEMPLATES = [
@@ -80,7 +81,6 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 # Database
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
-# Put your database settings here.
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
@@ -101,6 +101,8 @@ SHELL_PLUS_POST_IMPORTS = (
     ('django.contrib.gis.geos', 'Point'),
 )
 
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
 
@@ -113,6 +115,7 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
