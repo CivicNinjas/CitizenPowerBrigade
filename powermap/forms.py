@@ -10,7 +10,8 @@ class HelpNoteModelForm(forms.ModelForm):
         self.helper = FormHelper(self)
         self.helper.layout.append(Submit('save', 'save'))
         self.helper.form_method = 'post'
-        self.helper.form_action = ''
+        self.helper.form_action = 'helpnote-list'
+        self.helper.form_id = "helpnote-form"
         self.helper.layout = Layout(
             'address',
             'message',
