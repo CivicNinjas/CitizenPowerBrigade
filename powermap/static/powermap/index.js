@@ -107,7 +107,7 @@ $( document ).ready(function() {
             'marker-size': 'medium',
             'marker-color': '#b8b8b8'
           }),
-          zIndexOffset: 999
+          zIndexOffset: 500
         });
         layers.staticNext.addTo(map);
 
@@ -135,6 +135,7 @@ $( document ).ready(function() {
       $('#change_next').click(function() {
         var csrftoken = $.cookie('csrftoken');
         var loc = layers.secondMarker.getLatLng();
+        layers.staticNext.setLatLng(loc);
         layers.staticNextLine.spliceLatLngs(1, 1, loc);
 
         var post_data = {
@@ -181,7 +182,7 @@ $( document ).ready(function() {
           layers.noteLayer.bindPopup(tempPopup);
           layers.noteLayer.openPopup();
         };
-        setTimeout(updateNotes, 6000);
+        setTimeout(updateNotes, 20000);
       });
    })();
 
