@@ -59,6 +59,19 @@ $( document ).ready(function() {
       });
     });
 
+    $("#helpnote-form").on('submit', function(e){
+      $.post("/helpnotes/", $("#helpnote-form").serialize())
+        .done(function(data) {
+          console.log("Success");
+          console.log(data);
+          $("#myModal").modal('hide');
+        })
+        .fail(function(data){
+            console.log("Failure");
+        });
+      return false;
+    });
+
     var getLocation = (function() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(setLocation);
