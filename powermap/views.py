@@ -46,7 +46,7 @@ class PowerCarViewSet(viewsets.ModelViewSet):
     @list_route()
     def other_active_cars(self, request):
         """
-        API endpoint that allows all cars but the users to be viewed.
+        API endpoint that allows all active cars but the users to be viewed.
         """
         sessions = Session.objects.filter(expire_date__gte=timezone.now())
         uid_list = []
