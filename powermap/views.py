@@ -11,12 +11,13 @@ from django.utils import timezone
 
 
 from rest_framework import viewsets
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, list_route
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
 from serializers import (
     PowerCarSerializer,
+    PowerCarMinSerializer,
     UserSerializer,
     HelpNoteSerializer,
     DiagnosticSerializer,
@@ -41,6 +42,24 @@ class PowerCarViewSet(viewsets.ModelViewSet):
     users = User.objects.filter(id__in=uid_list)
     queryset = PowerCar.objects.filter(owner__in=users)
     serializer_class = PowerCarSerializer
+
+    @list_route()
+    def other_active_cars(self, request):
+        """
+        API endpoint that allows all cars but the users to be viewed.
+        """
+        sessions = Session.objects.filter(expire_date__gte=timezone.now())
+        uid_list = []
+
+        # Build list of user IDs from session query.
+        for session in sessions:
+            data = session.get_decoded()
+            uid_list.append(data.get('_auth_user_id', None))
+        uid = request.user.id
+        users = User.objects.filter(id__in=uid_list).exclude(id=uid)
+        queryset = PowerCar.objects.filter(owner__in=users, active=True)
+        serializer = PowerCarMinSerializer(queryset, many=True)
+        return JsonResponse(serializer.data)
 
 
 class HelpNoteViewSet(viewsets.ModelViewSet):
@@ -223,11 +242,10 @@ def get_other_cars(request):
         data = session.get_decoded()
         uid_list.append(data.get('_auth_user_id', None))
     uid = request.user.id
-    users = User.objects.filter(id__in=uid_list)
+    users = User.objects.filter(id__in=uid_list).exclude(id=uid)
     print users
-    users = [x for x in users if x.id != uid]
     queryset = PowerCar.objects.filter(owner__in=users, active=True)
-    serializer = PowerCarSerializer(queryset, many=True)
+    serializer = PowerCarMinSerializer(queryset, many=True)
     return JsonResponse(serializer.data)
 
 
