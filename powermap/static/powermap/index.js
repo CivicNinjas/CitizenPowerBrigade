@@ -270,7 +270,7 @@ $( document ).ready(function() {
     (function updateOtherCars() {
       var tempPopup = null;
       var markerToPopup = null;
-      $.get("/pttp/cars/get_other_cars/", function(data) {
+      $.get("powercars/other_active_cars/", function(data) {
         for(var i = 0; i < data.features.length; i++){
           feat = data.features[i];
           feat.properties["marker-symbol"] = "car";
