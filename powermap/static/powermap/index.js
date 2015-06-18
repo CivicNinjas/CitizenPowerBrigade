@@ -87,7 +87,7 @@ $( document ).ready(function() {
     });
 
     var getData = (function(callback) {
-      $.get("/pttp/cars/get_user_car/", function(data) {
+      $.get("/powercars/get_user_car/", function(data) {
         var id = data.id;
         data.properties["marker-symbol"] = "car";
         data.properties["marker-size"] = "large";
@@ -200,7 +200,7 @@ $( document ).ready(function() {
    })();
 
     var updateCar = (function(callback) {
-      $.get("/pttp/cars/get_user_car/", function(data) {
+      $.get("/powercars/get_user_car/", function(data) {
         var id = data.id;
         data.properties["marker-symbol"] = "car";
         data.properties["marker-size"] = "large";
