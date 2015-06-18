@@ -10,6 +10,13 @@ class PowerCarSerializer(GeoFeatureModelSerializer):
         geo_field = 'current_location'
 
 
+class PowerCarMinSerializer(GeoFeatureModelSerializer):
+    class Meta:
+        model = PowerCar
+        fields = ('id', 'current_location', 'next_location')
+        geo_field = 'current_location'
+
+
 class HelpNoteSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = HelpNote
