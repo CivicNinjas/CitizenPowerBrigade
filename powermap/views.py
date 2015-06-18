@@ -11,7 +11,7 @@ from django.utils import timezone
 
 
 from rest_framework import viewsets
-from rest_framework.decorators import api_view, list_route
+from rest_framework.decorators import api_view, list_route, detail_route
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
@@ -59,6 +59,12 @@ class PowerCarViewSet(viewsets.ModelViewSet):
         users = User.objects.filter(id__in=uid_list).exclude(id=uid)
         queryset = PowerCar.objects.filter(owner__in=users, active=True)
         serializer = PowerCarMinSerializer(queryset, many=True)
+        return JsonResponse(serializer.data)
+
+    @list_route()
+    def get_user_car(self, request):
+        car = PowerCar.objects.get(owner=request.user)
+        serializer = PowerCarMinSerializer(car)
         return JsonResponse(serializer.data)
 
 
