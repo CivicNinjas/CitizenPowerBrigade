@@ -9,6 +9,8 @@ $( document ).ready(function() {
       autocomplete: true
     }));
 
+    var user_car_id = null;
+
     var layers = {
       carLayer: L.mapbox.featureLayer().addTo(map),
       otherCars: L.mapbox.featureLayer().addTo(map),
@@ -88,6 +90,7 @@ $( document ).ready(function() {
 
     var getData = (function(callback) {
       $.get("/powercars/get_user_car/", function(data) {
+        user_car_id = data.id;
         var id = data.id;
         data.properties["marker-symbol"] = "car";
         data.properties["marker-size"] = "large";
