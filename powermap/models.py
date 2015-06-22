@@ -16,6 +16,17 @@ class PowerCar(models.Model):
     owner = models.ForeignKey(User, null=True)
     objects = models.GeoManager()
 
+    def at_next_location(self):
+        "Returns whether the car is at its next_location"
+        a = self.current_location
+        b = self.next_location
+        a.transform(900913)
+        b.transform(900913)
+        dist = a.distance(b)
+        if dist <= 50:
+            return True
+        return False
+
 
 class HelpNote(models.Model):
     # A note posted by a user that needs help.
