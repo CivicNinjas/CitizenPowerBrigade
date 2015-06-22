@@ -1,0 +1,27 @@
+{
+  "name": "pttp",
+  "version": "0.0.0",
+  "description": "npm package for pttp",
+  "main": "index.js",
+  "dependencies": {
+    "browserify": "^10.2.4"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "vinyl-transform": "^1.0.0",
+    "watchify": "^3.2.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/harbieism/pttp.git"
+  },
+  "author": "Joe Watkins",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/harbieism/pttp/issues"
+  },
+  "homepage": "https://github.com/harbieism/pttp"
+}
