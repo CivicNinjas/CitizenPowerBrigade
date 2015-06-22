@@ -1,3 +1,5 @@
 *.pyc
 *.swp
 pttp/settings.py
+node_modules/*
+powermap/static/powermap/bundle.js
