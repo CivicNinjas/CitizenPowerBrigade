@@ -25,7 +25,7 @@ var getLocation = (function() {
 });
 
 var setLocation = (function(position) {
-  point_string = "POINT(" + position.coords.longitude + " " + position.coords.latitude +")";
+  var point_string = "POINT(" + position.coords.longitude + " " + position.coords.latitude +")";
   $("#id_location").val(point_string);
   map.setView([position.coords.latitude, position.coords.longitude], 10);
 });
@@ -47,6 +47,7 @@ map.on('popupclose', function(e) {
   mapInfo.currentPopup.popup = null;
 });
 
+getLocation();
 
 exports.map = map;
 exports.mapInfo = mapInfo;
