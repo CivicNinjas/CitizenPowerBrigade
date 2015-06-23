@@ -63,6 +63,7 @@ var getData = (function(callback) {
           .done(function(data) {
             console.log("Success");
             console.log(data);
+            info.selectNextLocationM.closePopup();
           })
           .fail(function(data){
             console.log("Failure");
