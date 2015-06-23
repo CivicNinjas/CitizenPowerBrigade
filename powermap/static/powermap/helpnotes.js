@@ -15,7 +15,7 @@ layers.noteLayer.on('click', function(e){
 });
 
 $("#helpnote-form").on('submit', function(e){
-  $.post("/helpnotes/", $("#helpnote-form").serialize())
+  $.post("/pttp/create_note/", $("#helpnote-form").serialize())
     .done(function(data) {
       console.log("Success");
       console.log(data);
