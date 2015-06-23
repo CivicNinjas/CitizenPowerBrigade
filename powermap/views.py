@@ -1,5 +1,7 @@
-from powermap.forms import HelpNoteModelForm
+from powermap.forms import HelpNoteModelForm, NextLocationForm
 from powermap.models import PowerCar, HelpNote, Diagnostic, Inverter, GPS
+
+from datetime import date, datetime, time
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -7,7 +9,7 @@ from django.contrib.gis.geos import Point
 from django.contrib.sessions.models import Session
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.utils import timezone
+from django.utils import timezone, dateparse
 
 
 from rest_framework import viewsets
@@ -276,6 +278,38 @@ def set_active(request, *args, **kwargs):
             content_type="application/json"
         )
     else:
+        return HttpResponse(
+            json.dumps(response_data),
+            content_type="application/json"
+        )
+
+
+def next_location_popup(request, *args, **kwargs):
+    if request.method == "GET":
+        form = NextLocationForm()
+        return render(
+            request,
+            "powermap/next_location_popup.html",
+            {"form": form}
+        )
+    if request.method == "POST":
+        identified_user = request.user
+        car = get_object_or_404(PowerCar, owner=identified_user)
+        response_data = {}
+        lat = request.POST.get("lat")
+        lng = request.POST.get("lng")
+        arrival_time = dateparse.parse_time(request.POST.get("arrival_time"))
+        stay_time = dateparse.parse_time(request.POST.get("stay_time"))
+        arrival_datetime = datetime.combine(date.today(), arrival_time)
+        stay_datetime = datetime.combine(date.today(), stay_time)
+        new_point = Point(float(lng), float(lat))
+        car.next_location = new_point
+        car.eta = arrival_datetime
+        car.current_location_until = stay_datetime
+        car.save()
+
+        response_data['result'] = 'Change next successfully'
+
         return HttpResponse(
             json.dumps(response_data),
             content_type="application/json"
