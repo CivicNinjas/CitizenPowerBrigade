@@ -13,6 +13,7 @@ var info = {
 };
 
 
+
 var getData = (function(callback) {
   $.get("/powercars/get_user_car/", function(data) {
     var coords = data.geometry.coordinates;
@@ -42,7 +43,33 @@ var getData = (function(callback) {
       draggable: true,
       zIndexOffset: 1000
     });
-    info.selectNextLocationM.addTo(mapFile.map);
+      info.selectNextLocationM.addTo(mapFile.map);
+      info.selectNextLocationM.on('popupopen', function() {
+        $("#nextLocation-form").on('submit', function(e){
+          e.preventDefault();
+          var serial_data = $("#nextLocation-form").serializeArray();
+          console.log(serial_data);
+          var csrftoken = $.cookie('csrftoken');
+          var loc = info.selectNextLocationM.getLatLng();
+          var new_post_data = {
+            'lat': loc.lat,
+            'lng': loc.lng,
+            'arrival_time': serial_data[1].value,
+            'stay_time': serial_data[2].value,
+            'csrfmiddlewaretoken': csrftoken,
+          };
+          console.log(new_post_data);
+          $.post("/pttp/next_location_popup/", new_post_data)
+          .done(function(data) {
+            console.log("Success");
+            console.log(data);
+          })
+          .fail(function(data){
+            console.log("Failure");
+          });
+          return false;
+        });
+      });
 
     info.staticNextLocationM = L.marker(new L.LatLng(lng_second, lat_second), {
       icon: L.mapbox.marker.icon({
@@ -69,22 +96,6 @@ var getDataCallback = (function() {
     info.selectNextLocationL.spliceLatLngs(1, 1, loc);
   });
 
-  $('#change_next').click(function() {
-    var csrftoken = $.cookie('csrftoken');
-    var loc = info.selectNextLocationM.getLatLng();
-    info.staticNextLocationM.setLatLng(loc);
-    info.staticNextLocationL.spliceLatLngs(1, 1, loc);
-
-    var post_data = {
-      'lat': loc.lat,
-      'lng': loc.lng,
-      'csrfmiddlewaretoken': csrftoken,
-    }
-    var post_url = "/pttp/cars/" + info.userCarID + "/change_location/";
-    $.post(post_url, post_data, function(response) {
-    });
-  });
-
   $('#set_active').click(function() {
     var csrftoken = $.cookie('csrftoken');
     var post_data = {
@@ -102,7 +113,6 @@ var getDataCallback = (function() {
 var updateLooper = (function() {
   $.get("/powercars/get_user_car/", function(data) {
     var coords = data.geometry.coordinates;
-    console.log(coords);
     info.userCar.setLatLng([coords[1], coords[0]]);
     var fc = info.userCar.getLatLng();
     info.selectNextLocationL.spliceLatLngs(0, 1, fc);
@@ -114,12 +124,20 @@ var updateLooper = (function() {
       'lng': position.coords.longitude,
       'csrfmiddlewaretoken': csrftoken,
     };
-    console.log(post_data);
     var post_url = "/pttp/cars/" + info.userCarID + "/update_current_location/";
     $.post(post_url, post_data, function(response) {
     });
   });
   setTimeout(updateLooper, 5000);
 });
+
+$('#change_next').click(function(callback) {
+  $.get("/pttp/next_location_popup/", function(data) {
+    info.selectNextLocationM.bindPopup(data);
+    info.selectNextLocationM.openPopup();
+  });
+});
+
+
 
 getData(getDataCallback);
