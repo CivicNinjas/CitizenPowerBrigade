@@ -13,19 +13,21 @@ def send_alerts(numbers, car, event_type):
     message_body = ""
     if event_type == "Arrival":
         message_body = (
-            "A PowerCar has arrived in your area!"
+            "A PowerCar (Plate #{plate_number}) has arrived in your area!"
             + "It will be there until {leave_time}."
         ).format(
-            leave_time=car.current_location_until
+            leave_time=car.current_location_until,
+            plate_number=car.license_plate
         )
     elif event_type == "SetDestination":
         message_body = (
-            "A PowerCar will be in your area!"
+            "A PowerCar (Plate #{plate_number}) will be in your area!"
             + " It expects to arrive at {arrive_time} and to be"
             + " there until {leave_time}."
         ).format(
             arrive_time=car.eta,
-            leave_time=car.current_location_until
+            leave_time=car.current_location_until,
+            plate_number=car.license_plate
         )
     for number in numbers:
         message = client.messages.create(
