@@ -10,6 +10,7 @@ from django.contrib.sessions.models import Session
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone, dateparse
+from twilio_utils import send_alerts
 
 
 from rest_framework import viewsets
@@ -306,6 +307,12 @@ def next_location_popup(request, *args, **kwargs):
         car.next_location = new_point
         car.eta = arrival_datetime
         car.current_location_until = stay_datetime
+        alert_notes = HelpNote.objects.filter(
+            location__distance_lte=(car.next_location, 500)
+        )
+        alert_notes = alert_notes.exclude(phone_number="")
+        alert_numbers = [notes.phone_number for notes in alert_notes]
+        send_alerts(alert_numbers, car, "SetDestination")
         car.save()
 
         response_data['result'] = 'Change next successfully'
