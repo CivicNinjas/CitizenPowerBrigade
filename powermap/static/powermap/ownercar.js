@@ -64,6 +64,8 @@ var getData = (function(callback) {
             console.log("Success");
             console.log(data);
             info.selectNextLocationM.closePopup();
+            info.staticNextLocationM.setLatLng(loc);
+            info.staticNextLocationL.spliceLatLngs(1, 1, loc);
           })
           .fail(function(data){
             console.log("Failure");
