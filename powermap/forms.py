@@ -48,7 +48,8 @@ class HelpNoteModelForm(forms.ModelForm):
         if len(stripped_num) == 10:
             return "+1" + stripped_num
         else:
-            return "" 
+            return ""
+
 
 class NextLocationForm(forms.Form):
 
