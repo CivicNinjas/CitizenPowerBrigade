@@ -15,6 +15,7 @@ class HelpNoteModelForm(forms.ModelForm):
         self.helper.layout = Layout(
             'address',
             'message',
+            'phone_number',
             'creator',
             'location',
             ButtonHolder(
@@ -28,10 +29,17 @@ class HelpNoteModelForm(forms.ModelForm):
             'address',
             'message',
             'creator',
+            'phone_number',
             'location'
         ]
         widgets = {
             'location': forms.HiddenInput()
+        }
+        help_texts = {
+            'phone_number': (
+                "Enter your phone number if you'd like to recieve messages"
+                + " alerting you to cars in your area."
+            ),
         }
 
 
