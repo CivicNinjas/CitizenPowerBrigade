@@ -28,7 +28,8 @@ $("#helpnote-form").on('submit', function(e){
 });
 
  (function updateNotes() {
-   var noteToPopup = null;
+   var tempPopup = null;
+   var markerToPopup = null;
    $.get("/helpnotes/?format=json", function(data) {
      for(var i = 0; i < data.results.features.length; i++){
        var feat = data.results.features[i];
@@ -36,8 +37,8 @@ $("#helpnote-form").on('submit', function(e){
        feat.properties["marker-size"] = "large";
        feat.properties["marker-color"] = "#fc4353";
        if (mapFile.mapInfo.currentPopup.type == "HelpNote" && mapFile.mapInfo.currentPopup.id == feat.id) {
-         noteToPopup = feat;
-         tempPopup = mapFile.mapInfo.currentPopup.popup;
+          markerToPopup = feat;
+          tempPopup = mapFile.mapInfo.currentPopup.popup;
        };
      };
      layers.noteLayer.setGeoJSON([]);
@@ -45,7 +46,7 @@ $("#helpnote-form").on('submit', function(e){
      layers.clusterGroup.clearLayers(layers.noteLayer);
      layers.clusterGroup.addLayer(layers.noteLayer);
      mapFile.map.addLayer(layers.clusterGroup);
-     if (noteToPopup != null){
+     if (markerToPopup != null){
        layers.noteLayer.bindPopup(tempPopup);
        layers.noteLayer.openPopup();
      };
