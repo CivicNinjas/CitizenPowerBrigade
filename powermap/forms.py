@@ -42,6 +42,13 @@ class HelpNoteModelForm(forms.ModelForm):
             ),
         }
 
+    def clean_phone_number(self):
+        cleaned_num = self.cleaned_data.get('phone_number', '')
+        stripped_num = ''.join(x for x in cleaned_num if x.isdigit())
+        if len(stripped_num) == 10:
+            return "+1" + stripped_num
+        else:
+            return "" 
 
 class NextLocationForm(forms.Form):
 
