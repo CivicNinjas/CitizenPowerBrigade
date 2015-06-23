@@ -225,14 +225,6 @@ def logout_view(request):
     return redirect('index')
 
 
-def get_user_car(request):
-    uid = request.user.id
-    user = User.objects.get(id=uid)
-    car = PowerCar.objects.get(owner=user)
-    serializer = PowerCarSerializer(car)
-    return JsonResponse(serializer.data)
-
-
 def login_user(request):
     logout(request)
     username = password = ''

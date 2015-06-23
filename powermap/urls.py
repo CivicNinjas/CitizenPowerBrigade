@@ -22,7 +22,6 @@ urlpatterns = [
         views.change_location,
         name='change_location'
     ),
-    url(r'^cars/get_user_car/$', views.get_user_car, name='get_user_car'),
     url(
         r'^cars/get_other_cars/$',
         views.get_other_cars,
