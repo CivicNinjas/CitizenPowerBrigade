@@ -33,6 +33,7 @@ class HelpNote(models.Model):
     address = models.CharField(max_length=255)
     message = models.CharField(max_length=512)
     creator = models.CharField(max_length=63)
+    phone_number = models.CharField(max_length=15, blank=True)
     location = models.PointField()
     objects = models.GeoManager()
 
