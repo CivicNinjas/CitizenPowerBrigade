@@ -32,12 +32,12 @@ var setLocation = (function(position) {
 
 
 map.on('popupopen', function(e) {
-  if (e.popup._source.featuer != null) {
+  if (e.popup._source.feature != null) {
     if (e.popup._source.feature.properties["marker-symbol"] == "car") {
       mapInfo.currentPopup.type = "PowerCar";
     } else if (e.popup._source.feature.properties["marker-symbol"] == "oil-well") {
       mapInfo.currentPopup.type = "HelpNote";
-    };
+    }
     mapInfo.currentPopup.id = e.popup._source.feature.id;
     mapInfo.currentPopup.popup = e.popup;
   };
