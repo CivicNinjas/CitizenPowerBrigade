@@ -25,10 +25,15 @@
     {% endif %}
     </div>
   {% if authuser %}
-    <script src="{% static 'powermap/bundle.js' %}"></script>
+    <script>
+      var isAuth = true;
+    </script>
   {% else %}
-    <script src="{% static 'powermap/public_index.js' %}"></script>
+    <script>
+      var isAuth = false;
+    </script>
   {% endif %}
+  <script src="{% static 'powermap/bundle.js' %}"></script>
 {% endblock %}
 
 {% block navbar_content %}
