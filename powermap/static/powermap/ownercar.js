@@ -128,6 +128,7 @@ if (isAuth) {
       info.userCar.setLatLng([coords[1], coords[0]]);
       var fc = info.userCar.getLatLng();
       info.selectNextLocationL.spliceLatLngs(0, 1, fc);
+      info.staticNextLocationL.spliceLatLngs(0, 1, fc);
     });
     navigator.geolocation.getCurrentPosition(function(position) {
       var csrftoken = $.cookie('csrftoken');
