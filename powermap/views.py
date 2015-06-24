@@ -15,6 +15,7 @@ from twilio_utils import send_alerts
 
 from rest_framework import viewsets
 from rest_framework.decorators import api_view, list_route, detail_route
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
@@ -75,6 +76,7 @@ class HelpNoteViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows help notes to be viewed or edited.
     """
+    permission_classes = (IsAuthenticated,)
     queryset = HelpNote.objects.all()
     serializer_class = HelpNoteSerializer
 
