@@ -22,7 +22,7 @@ var getOtherCars = (function() {
       var feat = data.features[i];
       feat.properties["marker-symbol"] = "car";
       feat.properties["marker-size"] = "large";
-      feat.properties["marker-color"] = "#bbf696";
+      feat.properties["marker-color"] = "#FF4500";
     };
     otherLayers.otherCars.setGeoJSON(data)._layers;
     for(var i = 0; i < data.features.length; i++){
@@ -36,12 +36,12 @@ var getOtherCars = (function() {
         icon: L.mapbox.marker.icon({
           'marker-symbol': 'cross',
           'marker-size': 'medium',
-          'marker-color': '#bbf696'
+          'marker-color': '#FF4500'
         }),
       });
       marksTheSpot.addTo(otherLayers.otherCarMarkers);
       var newlatlngs = [startLatLng, endLatLng]
-      var temp = L.polyline(newlatlngs, {color: '#abf696', opacity: "0.8"}).addTo(otherLayers.otherCarMarkers);
+      var temp = L.polyline(newlatlngs, {color: '#FF4500', opacity: "0.8"}).addTo(otherLayers.otherCarMarkers);
     }
   });
 });
@@ -54,7 +54,7 @@ var getOtherCars = (function() {
       var feat = data.features[i];
       feat.properties["marker-symbol"] = "car";
       feat.properties["marker-size"] = "large";
-      feat.properties["marker-color"] = "#bbf696";
+      feat.properties["marker-color"] = "#FF4500";
       var popType = mapFile.mapInfo.currentPopup.type;
       var popID = mapFile.mapInfo.currentPopup.id;
       if (popType == "PowerCar" && popID == feat.id) {
@@ -77,12 +77,12 @@ var getOtherCars = (function() {
         icon: L.mapbox.marker.icon({
           'marker-symbol': 'cross',
           'marker-size': 'medium',
-          'marker-color': '#bbf696'
+          'marker-color': '#FF4500'
         }),
       });
       marksTheSpot.addTo(otherLayers.otherCarMarkers);
       var newlatlngs = [startLatLng, endLatLng]
-      var temp = L.polyline(newlatlngs, {color: '#abf696', opacity: "0.8"}).addTo(otherLayers.otherCarMarkers);
+      var temp = L.polyline(newlatlngs, {color: '#FF4500', opacity: "0.8"}).addTo(otherLayers.otherCarMarkers);
     }
     if (markerToPopup != null){
       otherLayers.otherCars.bindPopup(tempPopup);
