@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.gis.geos import Point
 from django.contrib.sessions.models import Session
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone, dateparse
 from twilio_utils import send_alerts
@@ -135,13 +135,15 @@ def popup(request, **kwargs):
 
 
 def note_popup(request, **kwargs):
-    help_note_id = kwargs['note_id']
-    note = HelpNote.objects.get(id=help_note_id)
-    context = {
-        "address": note.address, "message": note.message,
-        "creator": note.creator
-    }
-    return render(request, 'powermap/note_popup.html', context)
+    if request.user.is_authenticated():
+        help_note_id = kwargs['note_id']
+        note = HelpNote.objects.get(id=help_note_id)
+        context = {
+            "address": note.address, "message": note.message,
+            "creator": note.creator
+        }
+        return render(request, 'powermap/note_popup.html', context)
+    raise Http404
 
 
 def note_form(request, **kwargs):
