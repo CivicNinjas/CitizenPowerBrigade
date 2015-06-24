@@ -19,7 +19,11 @@
         {% csrf_token %}
         <div class="btn-group-vertical" role="group" aria-label="...">
           <button type="button" class="btn btn-primary" id="change_next">Change Next Location</button>
-          <button type="button" class="btn btn-primary" id="set_active">Set Active</button>
+          {% if activity %}
+            <button type="button" class="btn btn-primary" id="set_active">Deactivate</button>
+          {% else %}
+            <button type="button" class="btn btn-primary" id="set_active">Activate</button>
+          {% endif %}
         </div>
       </nav>
     {% endif %}

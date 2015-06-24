@@ -101,6 +101,8 @@ if (isAuth) {
       info.selectNextLocationL.spliceLatLngs(1, 1, loc);
     });
 
+    $('#set_active').html()
+
     $('#set_active').click(function() {
       var csrftoken = $.cookie('csrftoken');
       var post_data = {
@@ -108,6 +110,11 @@ if (isAuth) {
       }
       var post_url = "/pttp/cars/" + info.userCarID + "/set_active/";
       $.post(post_url, post_data, function(response) {
+        if (response.state) {
+          $("#set_active").html("Deactivate");
+        } else {
+          $("#set_active").html("Activate");
+        };
       });
     });
 

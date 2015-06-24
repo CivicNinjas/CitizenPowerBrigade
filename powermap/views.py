@@ -110,10 +110,12 @@ def index(request):
             return redirect('index')
     form = HelpNoteModelForm()
     if request.user.is_authenticated():
+        car = get_object_or_404(PowerCar, owner=request.user)
+        activity = car.active
         return render(
             request,
             'powermap/index.html',
-            {"form": form, "authuser": True}
+            {"form": form, "authuser": True, "activity": activity}
         )
     else:
         return render(
@@ -242,6 +244,7 @@ def set_active(request, *args, **kwargs):
         user_car.active = not user_car.active
         user_car.save()
         response_data['result'] = 'Change active successfully'
+        response_data['state'] = user_car.active
         response_data['car_id'] = car_id
 
         return HttpResponse(
