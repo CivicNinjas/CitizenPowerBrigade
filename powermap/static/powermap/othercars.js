@@ -38,21 +38,23 @@ otherLayers.otherCars.on('click', function(e){
     otherLayers.otherCars.setGeoJSON(data.car_data)._layers;
     for(var i = 0; i < data.car_data.features.length; i++){
       var feat = data.car_data.features[i];
-      var startLatLng = new L.LatLng(feat.geometry.coordinates[1], feat.geometry.coordinates[0]);
-      var endLatLng = new L.LatLng(
-          feat.properties.next_location.coordinates[1],
-          feat.properties.next_location.coordinates[0]
-      );
-      var marksTheSpot = L.marker(endLatLng, {
-        icon: L.mapbox.marker.icon({
-          'marker-symbol': 'cross',
-          'marker-size': 'medium',
-          'marker-color': '#FF4500'
-        }),
-      });
-      marksTheSpot.addTo(otherLayers.otherCarMarkers);
-      var newlatlngs = [startLatLng, endLatLng]
-      var temp = L.polyline(newlatlngs, {color: '#FF4500', opacity: "0.8"}).addTo(otherLayers.otherCarMarkers);
+      if (data.arrived_info[feat.id] == false) {
+        var startLatLng = new L.LatLng(feat.geometry.coordinates[1], feat.geometry.coordinates[0]);
+        var endLatLng = new L.LatLng(
+            feat.properties.next_location.coordinates[1],
+            feat.properties.next_location.coordinates[0]
+        );
+        var marksTheSpot = L.marker(endLatLng, {
+          icon: L.mapbox.marker.icon({
+            'marker-symbol': 'cross',
+            'marker-size': 'medium',
+            'marker-color': '#FF4500'
+          }),
+        });
+        marksTheSpot.addTo(otherLayers.otherCarMarkers);
+        var newlatlngs = [startLatLng, endLatLng]
+        var temp = L.polyline(newlatlngs, {color: '#FF4500', opacity: "0.8"}).addTo(otherLayers.otherCarMarkers);
+      };
     }
     if (markerToPopup != null){
       otherLayers.otherCars.bindPopup(tempPopup);
