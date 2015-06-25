@@ -63,17 +63,18 @@ class PowerCarViewSet(viewsets.ModelViewSet):
         users = User.objects.filter(id__in=uid_list).exclude(id=uid)
         queryset = PowerCar.objects.filter(owner__in=users, active=True)
         serializer = PowerCarMinSerializer(queryset, many=True)
-        return JsonResponse(serializer.data)
+        content = {"car_data": serializer.data}
+        content["arrived_info"] = {}
+        for each_car in queryset:
+            content["arrived_info"][each_car.id] = each_car.at_next_location()
+        return JsonResponse(content)
 
     @list_route()
     def get_user_car(self, request):
         car = PowerCar.objects.get(owner=request.user)
         serializer = PowerCarMinSerializer(car)
         content = {"car_data": serializer.data}
-        if car.at_next_location():
-            content["arrived"] = True
-        else:
-            content["arrived"] = False
+        content["arrived"] = car.at_next_location()
         return JsonResponse(content)
 
 

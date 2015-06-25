@@ -18,15 +18,15 @@ otherLayers.otherCars.on('click', function(e){
 
 var getOtherCars = (function() {
   $.get("/powercars/other_active_cars/", function(data) {
-    for(var i = 0; i < data.features.length; i++){
-      var feat = data.features[i];
+    for(var i = 0; i < data.car_data.features.length; i++){
+      var feat = data.car_data.features[i];
       feat.properties["marker-symbol"] = "car";
       feat.properties["marker-size"] = "large";
       feat.properties["marker-color"] = "#FF4500";
     };
-    otherLayers.otherCars.setGeoJSON(data)._layers;
-    for(var i = 0; i < data.features.length; i++){
-      var feat = data.features[i];
+    otherLayers.otherCars.setGeoJSON(data.car_data)._layers;
+    for(var i = 0; i < data.car_data.features.length; i++){
+      var feat = data.car_data.features[i];
       var startLatLng = new L.LatLng(feat.geometry.coordinates[1], feat.geometry.coordinates[0]);
       var endLatLng = new L.LatLng(
         feat.properties.next_location.coordinates[1],
@@ -50,8 +50,8 @@ var getOtherCars = (function() {
   var tempPopup = null;
   var markerToPopup = null;
   $.get("/powercars/other_active_cars/", function(data) {
-    for(var i = 0; i < data.features.length; i++){
-      var feat = data.features[i];
+    for(var i = 0; i < data.car_data.features.length; i++){
+      var feat = data.car_data.features[i];
       feat.properties["marker-symbol"] = "car";
       feat.properties["marker-size"] = "large";
       feat.properties["marker-color"] = "#FF4500";
@@ -65,9 +65,9 @@ var getOtherCars = (function() {
     };
     otherLayers.otherCars.setGeoJSON([]);
     otherLayers.otherCarMarkers.setGeoJSON([]);
-    otherLayers.otherCars.setGeoJSON(data)._layers;
-    for(var i = 0; i < data.features.length; i++){
-      var feat = data.features[i];
+    otherLayers.otherCars.setGeoJSON(data.car_data)._layers;
+    for(var i = 0; i < data.car_data.features.length; i++){
+      var feat = data.car_data.features[i];
       var startLatLng = new L.LatLng(feat.geometry.coordinates[1], feat.geometry.coordinates[0]);
       var endLatLng = new L.LatLng(
           feat.properties.next_location.coordinates[1],
