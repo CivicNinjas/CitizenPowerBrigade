@@ -102,6 +102,12 @@ SHELL_PLUS_POST_IMPORTS = (
 )
 
 
+TWILIO_AUTH = {
+    "SID": "",
+    "AUTH_TOKEN": "",
+    "TWILIO_NUMBER": ""
+}
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
