@@ -20,8 +20,8 @@ class PowerCar(models.Model):
         "Returns whether the car is at its next_location"
         a = self.current_location
         b = self.next_location
-        a.transform(900913)
-        b.transform(900913)
+        a.transform(3857)
+        b.transform(3857)
         dist = a.distance(b)
         if dist <= 50:
             return True
