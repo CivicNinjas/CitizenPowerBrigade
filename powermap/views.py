@@ -69,7 +69,12 @@ class PowerCarViewSet(viewsets.ModelViewSet):
     def get_user_car(self, request):
         car = PowerCar.objects.get(owner=request.user)
         serializer = PowerCarMinSerializer(car)
-        return JsonResponse(serializer.data)
+        content = {"car_data": serializer.data}
+        if car.at_next_location():
+            content["arrived"] = True
+        else:
+            content["arrived"] = False
+        return JsonResponse(content)
 
 
 class HelpNoteViewSet(viewsets.ModelViewSet):
@@ -171,13 +176,16 @@ def update_current_location(request, *args, **kwargs):
         already_at = car.at_next_location()
         car.current_location = new_point
         car.save()
-        if not already_at and car.at_next_location():
-            alert_notes = HelpNote.objects.filter(
-                location__distance_lte=(car.next_location, 500)
-            )
-            alert_notes = alert_notes.exclude(phone_number="")
-            alert_numbers = [notes.phone_number for notes in alert_notes]
-            send_alerts(alert_numbers, car, "Arrival")
+        response_data['arrived'] = False
+        if car.at_next_location():
+            response_data['arrived'] = True
+            if not already_at:
+                alert_notes = HelpNote.objects.filter(
+                    location__distance_lte=(car.next_location, 500)
+                )
+                alert_notes = alert_notes.exclude(phone_number="")
+                alert_numbers = [notes.phone_number for notes in alert_notes]
+                send_alerts(alert_numbers, car, "Arrival")
         response_data['result'] = 'Change next successfully'
         response_data['car_id'] = car_id
 

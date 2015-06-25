@@ -18,7 +18,7 @@ if (isAuth) {
 
   var getData = (function(callback) {
     $.get("/powercars/get_user_car/", function(data) {
-      var coords = data.geometry.coordinates;
+      var coords = data.car_data.geometry.coordinates;
 
       info.userCar = L.marker(new L.LatLng(coords[1], coords[0]), {
         icon: L.mapbox.marker.icon({
@@ -30,9 +30,9 @@ if (isAuth) {
       });
       info.userCar.addTo(mapFile.map);
 
-      info.userCarID = data.id;
+      info.userCarID = data.car_data.id;
       var fc = info.userCar.getLatLng();
-      var soon_marker = data.properties.next_location;
+      var soon_marker = data.car_data.properties.next_location;
       var lat_second = soon_marker.coordinates[0];
       var lng_second = soon_marker.coordinates[1];
 
@@ -124,7 +124,7 @@ if (isAuth) {
 
   var updateLooper = (function() {
     $.get("/powercars/get_user_car/", function(data) {
-      var coords = data.geometry.coordinates;
+      var coords = data.car_data.geometry.coordinates;
       info.userCar.setLatLng([coords[1], coords[0]]);
       var fc = info.userCar.getLatLng();
       info.selectNextLocationL.spliceLatLngs(0, 1, fc);
