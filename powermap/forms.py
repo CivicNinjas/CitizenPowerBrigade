@@ -1,5 +1,5 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, ButtonHolder, Submit
+from crispy_forms.layout import Layout, ButtonHolder, Submit, Field, Div
 from django import forms
 from powermap.models import HelpNote
 
@@ -53,14 +53,14 @@ class HelpNoteModelForm(forms.ModelForm):
 
 class NextLocationForm(forms.Form):
 
-    arrival_time = forms.TimeField(
+    arrival_time = forms.DateTimeField(
         label="When do you expect to arrive at this location?",
-        required=True,
+        required=True
     )
 
-    stay_time = forms.TimeField(
+    stay_time = forms.DateTimeField(
         label="When do you expect to leave this location?",
-        required=True,
+        required=True
     )
 
     def __init__(self, *args, **kwargs):
@@ -72,8 +72,10 @@ class NextLocationForm(forms.Form):
         self.helper.form_id = 'nextLocation-form'
 
         self.helper.layout = Layout(
-            'arrival_time',
-            'stay_time',
+            Div(Field('arrival_time', css_class="dateTimeField"),
+                style="position: relative"),
+            Div(Field('stay_time', css_class="dateTimeField"),
+                style="position: relative"),
             ButtonHolder(
                 Submit('submit', 'Submit', css_class='button white')
             )
