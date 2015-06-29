@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'powermap',
     'crispy_forms',
+    'datetimewidget'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -51,8 +52,10 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware'
+    'django.middleware.security.SecurityMiddleware',
+    'django.middleware.locale.LocaleMiddleware'
 ]
+
 
 
 ROOT_URLCONF = 'pttp.urls'
