@@ -96,18 +96,6 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 
-def create_note(request):
-    """
-    List all snippets, or create a new snippet.
-    """
-    if request.method == 'POST':
-        form = HelpNoteModelForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('index')
-        return redirect('index')
-
-
 def index(request):
     if request.method == 'POST':
         form = HelpNoteModelForm(request.POST)

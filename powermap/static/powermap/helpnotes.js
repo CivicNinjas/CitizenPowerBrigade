@@ -17,7 +17,7 @@ if (isAuth) {
   });
 
   $("#helpnote-form").on('submit', function(e){
-    $.post("/pttp/create_note/", $("#helpnote-form").serialize())
+    $.post("/helpnotes/", $("#helpnote-form").serialize())
       .done(function(data) {
         console.log("Success");
         console.log(data);
