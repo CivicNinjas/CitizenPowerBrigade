@@ -3,7 +3,6 @@ Markdown==2.6.2
 argparse==1.2.1
 django-cors-headers==1.1.0
 django-crispy-forms==1.4.0
-django-datetime-widget==0.9.3
 django-extensions==1.5.5
 django-filter==0.10.0
 djangorestframework==3.1.2
