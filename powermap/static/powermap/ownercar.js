@@ -148,6 +148,10 @@ if (isAuth) {
     $.get("/pttp/next_location_popup/", function(data) {
       info.selectNextLocationM.bindPopup(data);
       info.selectNextLocationM.openPopup();
+      $('.dateTimeField').datetimepicker({
+        format: 'YY-MM-DD HH:mm',
+        minDate: moment()
+      });
     });
   });
 
