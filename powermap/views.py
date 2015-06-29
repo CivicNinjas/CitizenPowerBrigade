@@ -12,6 +12,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone, dateparse
 from twilio_utils import send_alerts
 
+import time
 
 from rest_framework import viewsets
 from rest_framework.decorators import api_view, list_route, detail_route
@@ -281,14 +282,17 @@ def next_location_popup(request, *args, **kwargs):
         response_data = {}
         lat = request.POST.get("lat")
         lng = request.POST.get("lng")
-        arrival_time = dateparse.parse_time(request.POST.get("arrival_time"))
-        stay_time = dateparse.parse_time(request.POST.get("stay_time"))
-        arrival_datetime = datetime.combine(date.today(), arrival_time)
-        stay_datetime = datetime.combine(date.today(), stay_time)
+        now = timezone.now().tzinfo
         new_point = Point(float(lng), float(lat))
         car.next_location = new_point
-        car.eta = arrival_datetime
-        car.current_location_until = stay_datetime
+        arrival_time = request.POST.get("arrival_time")
+        arrival_time = datetime.strptime(arrival_time, "%y-%m-%d %H:%M")
+        arrival_time = arrival_time.replace(tzinfo=now)
+        car.eta = arrival_time
+        stay_time = request.POST.get("stay_time")
+        stay_time = datetime.strptime(stay_time, "%y-%m-%d %H:%M")
+        stay_time = stay_time.replace(tzinfo=now)
+        car.current_location_until = stay_time
         alert_notes = HelpNote.objects.filter(
             location__distance_lte=(car.next_location, 500)
         )
