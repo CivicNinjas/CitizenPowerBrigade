@@ -5,7 +5,6 @@ from . import views
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^cars/popup/(?P<car_id>\d+)/$', views.car_popup, name='car_popup'),
-    url(r'^note_form/$', views.note_form, name='note_form'),
     url(
         r'^note_popup/(?P<note_id>\d+)/$',
         views.note_popup,

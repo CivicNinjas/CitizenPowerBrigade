@@ -143,11 +143,6 @@ def note_popup(request, **kwargs):
     raise Http404
 
 
-def note_form(request, **kwargs):
-    form = HelpNoteModelForm()
-    return render(request, 'powermap/note_form.html', {"form": form})
-
-
 def update_current_location(request, *args, **kwargs):
     if request.method == "POST":
         identified_user = get_object_or_404(User, pk=request.user.id)
