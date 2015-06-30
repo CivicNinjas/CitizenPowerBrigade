@@ -120,7 +120,7 @@ def index(request):
         )
 
 
-def popup(request, **kwargs):
+def car_popup(request, **kwargs):
     car_id = kwargs['car_id']
     car = PowerCar.objects.get(id=car_id)
     context = {
@@ -128,7 +128,7 @@ def popup(request, **kwargs):
         "vehicle_description": car.vehicle_description,
         "license_plate": car.license_plate, "owner": car.owner
     }
-    return render(request, 'powermap/popup.html', context)
+    return render(request, 'powermap/car_popup.html', context)
 
 
 def note_popup(request, **kwargs):

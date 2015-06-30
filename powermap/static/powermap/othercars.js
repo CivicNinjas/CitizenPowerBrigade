@@ -9,7 +9,7 @@ var otherLayers = {
 
 otherLayers.otherCars.on('click', function(e){
   if (e.layer.feature != null) {
-    $.get("/pttp/popup/" + e.layer.feature.id + "/", function(data) {
+    $.get("/pttp/cars/popup/" + e.layer.feature.id + "/", function(data) {
       e.layer.bindPopup(data, {minWidth: 250});
       e.layer.openPopup();
     });
