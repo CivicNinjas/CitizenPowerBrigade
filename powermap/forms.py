@@ -1,6 +1,7 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, ButtonHolder, Submit, Field, Div
 from django import forms
+from django.utils.translation import gettext as _
 from powermap.models import HelpNote
 
 
@@ -42,13 +43,22 @@ class HelpNoteModelForm(forms.ModelForm):
             ),
         }
 
-    def clean_phone_number(self):
-        cleaned_num = self.cleaned_data.get('phone_number', '')
-        stripped_num = ''.join(x for x in cleaned_num if x.isdigit())
-        if len(stripped_num) == 10:
-            return "+1" + stripped_num
-        else:
-            return ""
+    def clean(self):
+        cleaned_data = super(HelpNoteModelForm, self).clean()
+        cleaned_num = self.cleaned_data.get('phone_number')
+        if cleaned_num != "":
+            stripped_num = ''.join(x for x in cleaned_num if x.isdigit())
+            if len(stripped_num) == 10:
+                cleaned_data['phone_number'] = "+1" + stripped_num
+            elif len(stripped_num) == 11 and stripped_num[0] == "1":
+                cleaned_data['phone_number'] = "+" + stripped_num
+            else:
+                raise forms.ValidationError(
+                    _("Invalid phone number: %(number)s."),
+                    code="invalid",
+                    params={"number": cleaned_num},
+                )
+        return cleaned_data
 
 
 class NextLocationForm(forms.Form):
