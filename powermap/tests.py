@@ -1,3 +1,4 @@
+import copy
 from django.test import TestCase
 from models import HelpNote
 from serializers import HelpNoteSerializer
@@ -18,6 +19,14 @@ class HelpNoteTest(TestCase):
             location=Point(45.50, 55.6)
         )
 
+        self.demo_form_data = {
+            'creator': "Test McTest",
+            'address': "Test Address",
+            'message': "Please help quick",
+            'location': "POINT(55.3454 23.435)",
+            'phone_number': "(555) 555-5555"
+        }
+
     def test_init(self):
         """
         Test to ensure that HelpNoteModelForm's init accepts a note.
@@ -25,13 +34,7 @@ class HelpNoteTest(TestCase):
         HelpNoteModelForm(self.note)
 
     def test_valid_data(self):
-        form = HelpNoteModelForm({
-            'creator': "Test McTest",
-            'address': "Test Address",
-            'message': "Please help quick",
-            'location': "POINT(55.3454 23.435)",
-            'phone_number': "(555) 555-5555"
-        })
+        form = HelpNoteModelForm(self.demo_form_data)
         self.assertTrue(form.is_valid())
         help_note = form.save()
         self.assertEqual(help_note.creator, "Test McTest")
@@ -49,3 +52,21 @@ class HelpNoteTest(TestCase):
             'message': ['This field is required.'],
             'location': ['No geometry value provided.'],
         })
+
+    def test_invalid_phone_number(self):
+        data = self.demo_form_data
+        data['phone_number'] = "(34) 945-3433"
+        form = HelpNoteModelForm(data)
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "Invalid phone number: (34) 945-3433.",
+            form.errors['__all__']
+        )
+
+    def test_valid_phone_number_with_prefix(self):
+        data = self.demo_form_data
+        data['phone_number'] = "+1 223 4567 891"
+        form = HelpNoteModelForm(data)
+        self.assertTrue(form.is_valid())
+        help_note = form.save()
+        self.assertEqual(help_note.phone_number, "+12234567891")
