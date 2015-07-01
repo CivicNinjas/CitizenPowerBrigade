@@ -2,56 +2,61 @@
 
 L.mapbox.accessToken = 'pk.eyJ1IjoiaGFyYmllaXNtIiwiYSI6IksyU1Rkc0UifQ.eXciAIxM0pfdj5STBHNnbQ';
 
-var map = L.mapbox.map('map', 'harbieism.mbb67n8i');
 
-map.addControl(L.mapbox.geocoderControl('mapbox.places', {
-  autocomplete: true
-}));
+var Map = function () {
+  this.map = L.mapbox.map('map', 'harbieism.mbb67n8i');
+  this.mapInfo = {
+    currentPopup: {
+      type: null,
+      id: null,
+      popup: null
+    }
+  };
 
-var mapInfo = {
-  currentPopup: {
-    type: null,
-    id: null,
-    popup: null
+  this.map.addControl(L.mapbox.geocoderControl('mapbox.places', {
+    autocomplete: true
+  }));
+
+  this.map.on('popupopen', function(e) {
+    if (e.popup._source.feature != null) {
+      if (e.popup._source.feature.properties["marker-symbol"] == "car") {
+        this.mapInfo.currentPopup.type = "PowerCar";
+      } else if (e.popup._source.feature.properties["marker-symbol"] == "oil-well") {
+        this.mapInfo.currentPopup.type = "HelpNote";
+      }
+      this.mapInfo.currentPopup.id = e.popup._source.feature.id;
+      this.mapInfo.currentPopup.popup = e.popup;
+    };
+  });
+
+  this.map.on('popupclose', function(e) {
+    this.mapInfo.currentPopup.type = null;
+    this.mapInfo.currentPopup.id = null;
+    this.mapInfo.currentPopup.popup = null;
+  });
+
+
+};
+
+Map.prototype.setLocation = function(position) {
+  var pointString = "POINT(" + position.coords.longitude + " "
+                  + position.coords.latitude + ")";
+  $("#id_location").val(pointString);
+  this.map.setView([position.coords.latitude, position.coords.longitude], 10);
+};
+
+Map.prototype.getLocation = function() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(this.setLocation.bind(this));
+  } else {
+    console.log("Geolocation is not supported");
   }
 };
 
-var getLocation = (function() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(setLocation);
-  } else {
-    console.log("Geolocation is not supported by this browser.");
-  };
-});
-
-var setLocation = (function(position) {
-  var point_string = "POINT(" + position.coords.longitude + " " + position.coords.latitude +")";
-  $("#id_location").val(point_string);
-  map.setView([position.coords.latitude, position.coords.longitude], 10);
-});
 
 
-map.on('popupopen', function(e) {
-  if (e.popup._source.feature != null) {
-    if (e.popup._source.feature.properties["marker-symbol"] == "car") {
-      mapInfo.currentPopup.type = "PowerCar";
-    } else if (e.popup._source.feature.properties["marker-symbol"] == "oil-well") {
-      mapInfo.currentPopup.type = "HelpNote";
-    }
-    mapInfo.currentPopup.id = e.popup._source.feature.id;
-    mapInfo.currentPopup.popup = e.popup;
-  };
-});
+var map = new Map();
 
-map.on('popupclose', function(e) {
-  mapInfo.currentPopup.type = null;
-  mapInfo.currentPopup.id = null;
-  mapInfo.currentPopup.popup = null;
-});
-
-getLocation();
+map.getLocation();
 
 exports.map = map;
-exports.mapInfo = mapInfo;
-exports.getLocation = getLocation;
-exports.setLocation = setLocation;
