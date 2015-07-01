@@ -50,13 +50,12 @@ Map.prototype.getLocation = function() {
     navigator.geolocation.getCurrentPosition(this.setLocation.bind(this));
   } else {
     console.log("Geolocation is not supported");
-  }
+  };
 };
-
 
 
 var map = new Map();
 
 map.getLocation();
 
-exports.map = map;
+module.exports = map;
