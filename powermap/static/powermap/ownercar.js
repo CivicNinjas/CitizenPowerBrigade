@@ -43,7 +43,7 @@ if (isAuth) {
           'marker-color': '#0044ff'
         }),
         draggable: true,
-        zIndexOffset: 1000
+        zIndexOffset: 1000,
       });
         info.selectNextLocationM.addTo(mapFile.map);
         info.selectNextLocationM.on('popupopen', function() {
@@ -61,7 +61,7 @@ if (isAuth) {
               'csrfmiddlewaretoken': csrftoken,
             };
             console.log(new_post_data);
-            $.post("/pttp/next_location_popup/", new_post_data)
+            $.post("/powercars/" + info.userCarID + "/change_next_location/", new_post_data)
             .done(function(data) {
               console.log("Success");
               console.log(data);

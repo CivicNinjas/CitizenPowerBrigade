@@ -3,6 +3,7 @@ from powermap.models import PowerCar, HelpNote, Diagnostic, Inverter, GPS
 
 from datetime import date, datetime, time
 
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.gis.geos import Point
@@ -16,10 +17,11 @@ import time
 
 from rest_framework import viewsets
 from rest_framework.decorators import api_view, list_route, detail_route
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
+from custom_permissions import IsAdminOrCarOwner
 from serializers import (
     PowerCarSerializer,
     PowerCarMinSerializer,
@@ -78,6 +80,39 @@ class PowerCarViewSet(viewsets.ModelViewSet):
         content["arrived"] = car.at_next_location()
         return JsonResponse(content)
 
+    @detail_route(methods=['post'], permission_classes=[IsAdminOrCarOwner])
+    def change_next_location(self, request, pk=None):
+        """
+        A route to change the next_location of a PowerCar,
+        as well as its ETA and time at current location.
+        """
+        car = self.get_object()
+        partial_update = {}
+        now = timezone.now().tzinfo
+        partial_update["next_location"]= Point(
+            float(request.data.get("lng")), 
+            float(request.data.get("lat"))
+        )
+        arrival_time = request.data.get("arrival_time")
+        arrival_time = datetime.strptime(arrival_time, "%y-%m-%d %H:%M")
+        partial_update["eta"] = arrival_time.replace(tzinfo=now)
+        stay_time = request.data.get("stay_time")
+        stay_time = datetime.strptime(stay_time, "%y-%m-%d %H:%M")
+        stay_time = stay_time.replace(tzinfo=now)
+        partial_update["current_location_until"] = stay_time
+        serializer = PowerCarSerializer(car, data=partial_update, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            alert_notes = HelpNote.objects.filter(
+                location__distance_lte=(car.next_location, 500)
+            )
+            alert_notes = alert_notes.exclude(phone_number="")
+            alert_numbers = [notes.phone_number for notes in alert_notes]
+            send_alerts(alert_numbers, car, "SetDestination")
+
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class HelpNoteViewSet(viewsets.ModelViewSet):
     """
@@ -104,6 +139,11 @@ def index(request):
             form = HelpNoteModelForm()
             return redirect('index')
     form = HelpNoteModelForm()
+    if request.user.is_staff:
+        return render(
+            request,
+            'powermap/index.html',
+            {"form": form, "authuser": False, "admin": True})
     if request.user.is_authenticated():
         car = get_object_or_404(PowerCar, owner=request.user)
         activity = car.active
