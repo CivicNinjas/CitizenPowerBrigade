@@ -34,6 +34,15 @@
       var isAuth = false;
     </script>
   {% endif %}
+  {% if admin %}
+    <script>
+      var isAdmin = true;
+    </script>
+  {% else %}
+    <script>
+      var isAdmin = false;
+    </script>
+  {% endif %} 
   <script src="{% static 'powermap/bundle.js' %}"></script>
 {% endblock %}
 
