@@ -18,8 +18,14 @@
           <button type="button" class="btn btn-primary" id="change_next">Change Next Location</button>
           {% if activity %}
             <button type="button" class="btn btn-primary" id="set_active">Deactivate</button>
+            <script>
+            var isActive = true;
+            </script>
           {% else %}
             <button type="button" class="btn btn-primary" id="set_active">Activate</button>
+            <script>
+              var isActive = false;
+            </script>
           {% endif %}
         </div>
       </nav>
