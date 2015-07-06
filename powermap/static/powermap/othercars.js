@@ -11,7 +11,6 @@ var OtherCars = function(map, dataSource, dataInterval) {
   this.dataSource = dataSource;
   this.markerToPopup = null;
   this.dataInterval = dataInterval;
-  this.first = true;
 };
 
 // Add data to the map from a data source for the first time.
