@@ -73,6 +73,35 @@ class PowerCarViewSet(viewsets.ModelViewSet):
         return JsonResponse(content)
 
     @list_route()
+    def update_others(self, request):
+        """
+        API endpoint that returns a dictionary of car coordinates keyed to
+        their IDs.
+        """
+        sessions = Session.objects.filter(expire_date__gte=timezone.now())
+        uid_list = []
+
+        # Build list of user IDs from session query.
+        for session in sessions:
+            data = session.get_decoded()
+            uid_list.append(data.get('_auth_user_id', None))
+        uid = request.user.id
+        users = User.objects.filter(id__in=uid_list).exclude(id=uid)
+        queryset = PowerCar.objects.filter(owner__in=users, active=True)
+        serializer = PowerCarMinSerializer(queryset, many=True)
+        content = {"car_data": serializer.data}
+        content["arrived_info"] = {}
+        for each_car in serializer.data["features"]:
+            content["arrived_info"][each_car["id"]] = {
+                "arrived": PowerCar.objects.get(
+                    id=each_car["id"]
+                ).at_next_location(),
+                "current_location": each_car["geometry"],
+                "next_location": each_car["properties"]["next_location"]
+            }
+        return JsonResponse(content)
+
+    @list_route()
     def get_user_car(self, request):
         car = PowerCar.objects.get(owner=request.user)
         serializer = PowerCarMinSerializer(car)
