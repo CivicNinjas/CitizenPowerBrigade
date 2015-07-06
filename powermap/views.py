@@ -89,7 +89,7 @@ class PowerCarViewSet(viewsets.ModelViewSet):
         users = User.objects.filter(id__in=uid_list).exclude(id=uid)
         queryset = PowerCar.objects.filter(owner__in=users, active=True)
         serializer = PowerCarMinSerializer(queryset, many=True)
-        content= {}
+        content = {}
         for each_car in serializer.data["features"]:
             content[each_car["id"]] = {
                 "arrived": PowerCar.objects.get(
@@ -117,8 +117,8 @@ class PowerCarViewSet(viewsets.ModelViewSet):
         car = self.get_object()
         partial_update = {}
         now = timezone.now().tzinfo
-        partial_update["next_location"]= Point(
-            float(request.data.get("lng")), 
+        partial_update["next_location"] = Point(
+            float(request.data.get("lng")),
             float(request.data.get("lat"))
         )
         arrival_time = request.data.get("arrival_time")
@@ -149,6 +149,13 @@ class HelpNoteViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = HelpNote.objects.all()
     serializer_class = HelpNoteSerializer
+
+    @list_route(methods=['get'])
+    def update_notes(self, request):
+        response_dict = {}
+        for each in HelpNote.objects.all():
+            response_dict[str(each.id)] = True
+        return JsonResponse(response_dict)
 
 
 class UserViewSet(viewsets.ModelViewSet):

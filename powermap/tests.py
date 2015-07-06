@@ -4,8 +4,13 @@ from django.contrib.auth.models import AnonymousUser, User
 from models import HelpNote
 
 from serializers import HelpNoteSerializer
-from rest_framework.test import APIRequestFactory, APITestCase, force_authenticate
+from rest_framework.test import (
+    APIRequestFactory,
+    APITestCase,
+    force_authenticate
+)
 
+import json
 from forms import HelpNoteModelForm
 from django.contrib.gis.geos import Point, GEOSGeometry
 
@@ -98,7 +103,7 @@ class HelpNoteViewSetTest(APITestCase):
         """
         Test the list API endpoint.
         """
-        url = '/helpnotes/?format=json'
+        url = reverse('helpnote-list')
 
         # Request is not authenticated, so it should return a 403
         # unauthorized status code.
@@ -115,3 +120,32 @@ class HelpNoteViewSetTest(APITestCase):
         response = view(request)
 
         self.assertEqual(response.status_code, 200)
+
+    def test_update_notes(self):
+        """
+        Test the update_list API endpoint.
+        """
+        url = reverse('helpnote-update-notes')
+        # Request is not authenticated, so it should return a 403
+        # unauthorized status code.
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, 403)
+
+        # Test for whether a valid, logged-in user can access the list.
+        factory = APIRequestFactory()
+        user = self.user
+        view = HelpNoteViewSet.as_view({'get': 'update_notes'})
+
+        request = factory.get(url)
+        force_authenticate(request, user=user)
+        response = view(request)
+
+        self.assertEqual(response.status_code, 200)
+
+        # Test that the information returned by the request is in the
+        # correct format.
+        correct_dictionary = {
+            y: True for y in [x.id for x in HelpNote.objects.all()]
+        }
+
+        self.assertEqual(response.content, json.dumps(correct_dictionary))
