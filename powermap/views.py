@@ -73,7 +73,7 @@ class PowerCarViewSet(viewsets.ModelViewSet):
         return JsonResponse(content)
 
     @list_route()
-    def update_others(self, request):
+    def other_car_coords(self, request):
         """
         API endpoint that returns a dictionary of car coordinates keyed to
         their IDs.
@@ -89,10 +89,9 @@ class PowerCarViewSet(viewsets.ModelViewSet):
         users = User.objects.filter(id__in=uid_list).exclude(id=uid)
         queryset = PowerCar.objects.filter(owner__in=users, active=True)
         serializer = PowerCarMinSerializer(queryset, many=True)
-        content = {"car_data": serializer.data}
-        content["arrived_info"] = {}
+        content= {}
         for each_car in serializer.data["features"]:
-            content["arrived_info"][each_car["id"]] = {
+            content[each_car["id"]] = {
                 "arrived": PowerCar.objects.get(
                     id=each_car["id"]
                 ).at_next_location(),
