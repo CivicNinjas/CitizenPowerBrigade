@@ -174,8 +174,12 @@ if (isAuth) {
       var postURL = "/pttp/cars/" + self.car.id + "/update_current_location/";
       $.post(postURL, postData, function(response) {
         $.get(self.dataSource, function(data) {
+          console.log(data);
           var newPostion = data.car_data.geometry.coordinates;
+          var newNext = data.car_data.properties.next_location.coordinates;
           self.car.marker.setLatLng([newPostion[1], newPostion[0]]);
+          self.staticNext.marker.setLatLng([newNext[1], newNext[0]]);
+          self.staticNext.line.spliceLatLngs(1, 1, [newNext[1], newNext[0]]);
           newPostion = self.car.marker.getLatLng();
           self.selectNext.line.spliceLatLngs(0, 1, newPostion);
           self.staticNext.line.spliceLatLngs(0, 1, newPostion);
