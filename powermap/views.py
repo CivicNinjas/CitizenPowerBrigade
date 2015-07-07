@@ -17,11 +17,14 @@ import time
 
 from rest_framework import viewsets
 from rest_framework.decorators import api_view, list_route, detail_route
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import (
+    IsAuthenticated,
+    IsAdminUser,
+)
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
-from custom_permissions import IsAdminOrCarOwner
+from custom_permissions import IsAdminOrCarOwner, WriteOnlyOrUser
 from serializers import (
     PowerCarSerializer,
     PowerCarMinSerializer,
@@ -146,7 +149,7 @@ class HelpNoteViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows help notes to be viewed or edited.
     """
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (WriteOnlyOrUser,)
     queryset = HelpNote.objects.all()
     serializer_class = HelpNoteSerializer
 
