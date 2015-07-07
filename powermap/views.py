@@ -1,27 +1,21 @@
 from powermap.forms import HelpNoteModelForm, NextLocationForm
-from powermap.models import PowerCar, HelpNote, Diagnostic, Inverter, GPS
+from powermap.models import PowerCar, HelpNote
 
-from datetime import date, datetime, time
+from datetime import datetime
 
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.gis.geos import Point
 from django.contrib.sessions.models import Session
 from django.http import HttpResponse, JsonResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
-from django.utils import timezone, dateparse
+from django.utils import timezone
+
 from twilio_utils import send_alerts
 
-import time
 
 from rest_framework import viewsets
-from rest_framework.decorators import api_view, list_route, detail_route
-from rest_framework.permissions import (
-    IsAuthenticated,
-    IsAdminUser,
-)
-from rest_framework.renderers import JSONRenderer
+from rest_framework.decorators import list_route, detail_route
 from rest_framework.response import Response
 
 from custom_permissions import IsAdminOrCarOwner, WriteOnlyOrUser
@@ -30,9 +24,6 @@ from serializers import (
     PowerCarMinSerializer,
     UserSerializer,
     HelpNoteSerializer,
-    DiagnosticSerializer,
-    InverterSerializer,
-    GPSSerializer
 )
 
 import json
