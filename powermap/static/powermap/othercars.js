@@ -27,8 +27,6 @@ OtherCars.prototype.addInitialData = function() {
       currentFeature.properties["marker-symbol"] = "car";
       currentFeature.properties["marker-size"] = "medium";
       currentFeature.properties["marker-color"] = "#FFA500";
-
-
       
       // Adding nextMarkers and lines pointing to them.
       var startLatLng = new L.LatLng(
@@ -61,13 +59,12 @@ OtherCars.prototype.addInitialData = function() {
       markerForNextLocation.addTo(self.staticNextMarkers);
     }
 
-
     // Add markers for the cars themselves to the map.
     self.carLayer.setGeoJSON([]);
     self.carLayer.setGeoJSON(data.car_data);
 
     self.carLayer.on('click', function(e){
-      if (e.layer.feature != null) {
+      if (e.layer.feature !== null) {
         $.get("/pttp/cars/popup/" + e.layer.feature.id + "/", function(data){
           e.layer.bindPopup(data, {minWidth: 250});
           e.layer.openPopup();
@@ -75,7 +72,9 @@ OtherCars.prototype.addInitialData = function() {
       }
     });
 
-    setTimeout(function() { self.updateOthers() }, self.dataInterval * 1000);
+    setTimeout(function() {
+      self.updateOthers();
+    }, self.dataInterval * 1000);
   });
 };
 
@@ -97,7 +96,7 @@ OtherCars.prototype.updateOthers = function() {
         ]);
       } else {
         self.carLayer.removeLayer(marker);
-      };
+      }
     });
 
     // Same as above, but for the staticNextMarkers rather than the car
@@ -111,7 +110,7 @@ OtherCars.prototype.updateOthers = function() {
         ]);
       } else {
         self.staticNextMarkers.removeLayer(marker);
-      };
+      }
     });
 
     // Finally update the staticNextLines.
@@ -128,7 +127,7 @@ OtherCars.prototype.updateOthers = function() {
             lineData.next_location.coordinates[0]
           ]
         ]);
-        lineData["present"] = true;
+        lineData.present = true;
       } else {
         self.staticNextLines.removeLayer(line);
       }
@@ -202,9 +201,11 @@ OtherCars.prototype.updateOthers = function() {
         }
       }
     }
-    setTimeout(function() { self.updateOthers() }, self.dataInterval * 1000);
+    setTimeout(function() {
+      self.updateOthers();
+    }, self.dataInterval * 1000);
   });
-}
+};
 
 var otherCars = new OtherCars(
   map,
