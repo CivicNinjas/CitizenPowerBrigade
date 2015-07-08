@@ -24,6 +24,19 @@ Map.prototype.getLocation = function() {
   };
 };
 
+$("#helpnote-form").on('submit', function(e){
+  e.preventDefault();
+  $.post("/helpnotes/", $("#helpnote-form").serialize())
+  .done(function(data) {
+    console.log("Success");
+    console.log(data);
+    $("#myModal").modal('hide');
+  })
+  .fail(function(data){
+      console.log("Failure");
+  });
+});
+
 
 var map = new Map();
 
