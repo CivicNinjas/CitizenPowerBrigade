@@ -2,6 +2,8 @@
 
 var map = require('./map');
 
+if (!isAdmin) {
+
 var OtherCars = function(map, dataSource, dataInterval) {
   this.map = map;
   this.carFeatureGroup = L.featureGroup();
@@ -141,7 +143,6 @@ OtherCars.prototype.updateOthers = function() {
         if (!(data[key].hasOwnProperty("present"))) {
 
           var currentFeature = data[key];
-          console.log(currentFeature);
 
           // Adding nextMarkers and lines pointing to them.
           var startLatLng = new L.LatLng(
@@ -168,7 +169,6 @@ OtherCars.prototype.updateOthers = function() {
           });
 
           markerForCurrentLocation.on('click', function(e){
-            console.log(key);
             $.get("/pttp/cars/popup/" + key + "/", function(data) {
               e.layer.bindPopup(data, {minWidth: 250});
               e.layer.openPopup();
@@ -216,4 +216,4 @@ var otherCars = new OtherCars(
 otherCars.addInitialData();
 
 module.exports = otherCars;
-
+}
